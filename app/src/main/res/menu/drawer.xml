@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+        android:id="@+id/gp_1"
+        android:checkableBehavior="single" >
+        <item
+            android:id="@+id/mn_home"
+            android:title="Lista de Objetos"
+            android:checked="true"/>
+    </group>
+    <group
+        android:id="@+id/gp" >
+        <item
+            android:id="@+id/mn_settings"
+            android:title="Configurações"/>
+        <item
+            android:id="@+id/mn_feedback"
+            android:title="Avaliar"/>
+        <item
+            android:id="@+id/mn_help"
+            android:title="Ajuda"/>
+        <item
+            android:id="@+id/mn_about"
+            android:title="Sobre"/>
+    </group>
+</menu>

@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">São Longuinho</string>
+    <string name="app_name_example">Maria Testadora</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
