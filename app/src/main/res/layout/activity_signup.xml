@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFC107"
+        android:fillViewport="true"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center"
+                android:layout_marginTop="5dp"
+                android:orientation="vertical">
+
+                <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?android:attr/actionBarSize"
+                    android:background="#FFC107">
+                </android.support.v7.widget.Toolbar>
+
+                <ImageView
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_gravity="center_horizontal|top"
+                    android:src="@drawable/icon_header"
+                    />
+
+                <EditText
+                    android:id="@+id/emailText"
+                    android:layout_width="fill_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginTop="30dp"
+                    android:background="#33212121"
+                    android:hint="Email"
+                    android:inputType="textEmailAddress"
+                    android:paddingLeft="3dp"
+                    android:textColorHighlight="#FAFAFA"
+                    android:textColorLink="#FAFAFA"/>
+
+                <EditText
+                    android:id="@+id/userNameText"
+                    android:layout_width="fill_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginTop="10dp"
+                    android:background="#33212121"
+                    android:ellipsize="start"
+                    android:hint="Seu Nome"
+                    android:paddingLeft="3dp"
+                    android:textColorLink="#FAFAFA"/>
+                <EditText
+                    android:id="@+id/passwordText"
+                    android:layout_width="fill_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginTop="10dp"
+                    android:background="#33212121"
+                    android:ellipsize="start"
+                    android:hint="Senha"
+                    android:paddingLeft="3dp"
+                    android:textColorLink="#FAFAFA"
+                    android:inputType="textVisiblePassword"/>
+                <EditText
+                    android:id="@+id/passwordConfirmText"
+                    android:layout_width="fill_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginTop="10dp"
+                    android:background="#33212121"
+                    android:ellipsize="start"
+                    android:hint="Confirme a Senha"
+                    android:paddingLeft="3dp"
+                    android:textColorLink="#FAFAFA"
+                    android:inputType="textVisiblePassword"/>
+
+                <Button
+                    android:id="@+id/button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginTop="20dp"
+                    android:background="#FAFAFA"
+                    android:text="Criar Conta"
+                    android:textColor="#000000"/>
+
+            </LinearLayout>
+        </FrameLayout>
+    </ScrollView>
+</layout>

@@ -13,6 +13,7 @@ import android.view.View;
 
 import com.org.saolonguinho.databinding.ActivityMainBinding;
 import com.org.saolonguinho.list.ListObjectsFragment;
+import com.org.saolonguinho.login.LoginActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
         configureToolbar();
         configureNavigation();
         setFragment();
+        startActivity(LoginActivity.createIntent(getApplicationContext()));
 
     }
 
