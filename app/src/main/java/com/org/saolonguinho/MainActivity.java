@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private void configureToolbar(){
         activityMainBinding.toolbar.setTitle(R.string.app_name);
         activityMainBinding.toolbar.setNavigationIcon(R.drawable.ic_menu_black_24dp);
-        activityMainBinding.toolbar.setOnClickListener(new View.OnClickListener() {
+        activityMainBinding.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
