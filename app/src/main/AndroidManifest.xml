@@ -27,6 +27,8 @@
         </activity>
         <activity android:name=".edit.EditObjectActivity">
         </activity>
+        <activity android:name=".help.HelpActivity">
+        </activity>
     </application>
 
 </manifest>

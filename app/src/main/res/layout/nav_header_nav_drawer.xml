@@ -18,7 +18,7 @@
             android:id="@+id/profile_image"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:src="@drawable/icon_header"
+            android:src="@drawable/icon_app_256"
             app:civ_border_color="#FF000000"/>
 
         <TextView

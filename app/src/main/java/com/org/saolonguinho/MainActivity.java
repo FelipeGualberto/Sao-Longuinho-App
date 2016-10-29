@@ -13,6 +13,7 @@ import android.view.View;
 
 import com.org.saolonguinho.about.AboutActivity;
 import com.org.saolonguinho.databinding.ActivityMainBinding;
+import com.org.saolonguinho.help.HelpActivity;
 import com.org.saolonguinho.list.ListObjectsFragment;
 import com.org.saolonguinho.login.LoginActivity;
 
@@ -70,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.mn_feedback:
                         return true;
                     case R.id.mn_help:
+                        startActivity(HelpActivity.createIntent(getApplicationContext()));
                         return true;
                     case R.id.mn_about:
                        startActivity(AboutActivity.createIntent(getApplicationContext()));

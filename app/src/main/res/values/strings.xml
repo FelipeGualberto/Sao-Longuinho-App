@@ -5,4 +5,10 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="link"><a href="http://www.google.com">Esqueci a senha</a></string>
+    <string name="welcome">Olá, Aqui é o São Longuinho, vou te ajudar a achar alguma coisa no futuro!</string>
+    <string name="description">São Longuinho, o santo dos objetos perdidos!</string>
+    <string name="how_works">Como funciona? Cadastre um objeto no botão +</string>
+    <string name="example_usage">Por exemplo: Carteira de identidade, Certidão de Nascimento, Um documento importante! Dê preferência a objetos que você não usa com tanta frequência.</string>
+    <string name="how_works_2">Adicione Foto e descreva onde o objeto está!</string>
+    <string name="end_help">Economize Tempo!</string>
 </resources>
