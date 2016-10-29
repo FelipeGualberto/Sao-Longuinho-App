@@ -11,6 +11,7 @@ import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.org.saolonguinho.about.AboutActivity;
 import com.org.saolonguinho.databinding.ActivityMainBinding;
 import com.org.saolonguinho.list.ListObjectsFragment;
 import com.org.saolonguinho.login.LoginActivity;
@@ -71,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.mn_help:
                         return true;
                     case R.id.mn_about:
+                       startActivity(AboutActivity.createIntent(getApplicationContext()));
                         return true;
                 }
                 return false;

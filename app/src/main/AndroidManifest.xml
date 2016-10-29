@@ -23,6 +23,10 @@
         </activity>
         <activity android:name=".signup.SignupActivity">
         </activity>
+        <activity android:name=".about.AboutActivity">
+        </activity>
+        <activity android:name=".edit.EditObjectActivity">
+        </activity>
     </application>
 
 </manifest>
