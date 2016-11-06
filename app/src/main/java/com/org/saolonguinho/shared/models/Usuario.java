@@ -2,15 +2,16 @@ package com.org.saolonguinho.shared.models;
 
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 /**
  * Created by Felipe on 26/10/2016.
  */
-@ParseClassName("Usuario")
-public class Usuario extends ParseObject {
+@ParseClassName("_User")
+public class Usuario extends ParseUser {
 
     public final String EMAIL = "email";
-    public final String NAME = "name";
+    public final String NAME = "username";
 
     public String getNameUser() {
         return getString(NAME);
@@ -27,4 +28,5 @@ public class Usuario extends ParseObject {
     public void setEmail(String email) {
         put(EMAIL, email);
     }
+
 }

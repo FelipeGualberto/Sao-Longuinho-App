@@ -9,21 +9,26 @@ import android.view.ViewGroup;
 
 import com.org.saolonguinho.R;
 import com.org.saolonguinho.databinding.ItemBinding;
+import com.org.saolonguinho.shared.models.Objects;
+
+import java.util.List;
 
 /**
  * Created by Felipe on 08/10/2016.
  */
 
     public class ListObjectsAdapter extends RecyclerView.Adapter<ListObjectsAdapter.ViewHolder> {
-        private String[] mDataset;
+        private List<Objects> mDataset;
 
         public class ViewHolder extends RecyclerView.ViewHolder {
+            ItemBinding binding;
             public ViewHolder(ItemBinding itemBinding) {
                 super(itemBinding.getRoot());
+                binding = itemBinding;
             }
         }
 
-        public ListObjectsAdapter(String[] myDataset) {
+        public ListObjectsAdapter(List<Objects> myDataset) {
             mDataset = myDataset;
         }
 
@@ -38,12 +43,13 @@ import com.org.saolonguinho.databinding.ItemBinding;
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            //holder.mTextView.setText(mDataset[position]);
+            holder.binding.name.setText(mDataset.get(position).getNameObject());
+            holder.binding.location.setText(mDataset.get(position).getLocation().getDescription());
 
         }
         @Override
         public int getItemCount() {
-            return mDataset.length;
+            return mDataset.size();
         }
     }
 
