@@ -35,7 +35,7 @@ public class Objects extends ParseObject {
         return getParseFile(IMAGE);
     }
 
-    public void setImageObject(byte[] file) {
+    public void setImageObject(File file) {
         ParseFile parsefile = new ParseFile(file);
         try {
             parsefile.save();
