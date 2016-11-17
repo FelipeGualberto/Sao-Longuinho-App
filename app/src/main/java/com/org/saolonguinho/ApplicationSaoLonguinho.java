@@ -31,9 +31,9 @@ public class ApplicationSaoLonguinho extends Application {
         ParseObject.registerSubclass(Location.class);
         ParseObject.registerSubclass(Reminder.class);
         Parse.initialize(new Parse.Configuration.Builder(getApplicationContext())
-                .applicationId("LHKTxksPf9ndKukyNEyTohdJx17WXjbany0h4m5I")
-                .server("https://parseapi.back4app.com/")
-                .clientKey("C19qDjmr1knAn2bBh0anOEDKPl2yHNxEWEuRzwEI")
+                .applicationId(getString(R.string.application_id))
+                .server(getString(R.string.server))
+                .clientKey(getString(R.string.client_key))
                 .enableLocalDataStore().build());
     }
 }
