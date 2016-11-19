@@ -11,4 +11,5 @@
     <string name="example_usage">Por exemplo: Carteira de identidade, Certidão de Nascimento, Um documento importante! Dê preferência a objetos que você não usa com tanta frequência.</string>
     <string name="how_works_2">Adicione Foto e descreva onde o objeto está!</string>
     <string name="end_help">Economize Tempo!</string>
+    <string name="loading">Carregando...</string>
 </resources>

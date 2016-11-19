@@ -1,5 +1,6 @@
 package com.org.saolonguinho.list;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -23,6 +24,7 @@ import java.util.List;
 
 public class ListObjectsFragment extends Fragment {
     private RecyclerView rv;
+    private ProgressDialog progressDialog;
     View.OnClickListener onClickFloatingListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -38,6 +40,9 @@ public class ListObjectsFragment extends Fragment {
         FloatingActionButton floatingActionButton = (FloatingActionButton) view.findViewById(R.id.floating_btn);
         floatingActionButton.setOnClickListener(onClickFloatingListener);
         rv = (RecyclerView) view.findViewById(R.id.rv);
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setTitle(R.string.loading);
+        progressDialog.setCancelable(false);
         setRecyclerView();
         return view;
     }
@@ -46,6 +51,7 @@ public class ListObjectsFragment extends Fragment {
         ParseQuery<Objects> objectsParseQuery = ParseQuery.getQuery(Objects.class);
         objectsParseQuery.include(Objects.LOCATION);
         objectsParseQuery.whereEqualTo(Objects.USER, ParseUser.getCurrentUser());
+        progressDialog.show();
         objectsParseQuery.findInBackground(new FindCallback<Objects>() {
             @Override
             public void done(List<Objects> objects, ParseException e) {
@@ -53,6 +59,10 @@ public class ListObjectsFragment extends Fragment {
                     ListObjectsAdapter listObjectsAdapter = new ListObjectsAdapter(objects);
                     rv.setAdapter(listObjectsAdapter);
                     rv.setLayoutManager(new LinearLayoutManager(getContext()));
+                    progressDialog.dismiss();
+                }
+                else{
+                    progressDialog.dismiss();
                 }
             }
         });
