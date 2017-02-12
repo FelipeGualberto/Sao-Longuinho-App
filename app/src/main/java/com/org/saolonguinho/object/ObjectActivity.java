@@ -70,8 +70,8 @@ public class ObjectActivity extends AppCompatActivity {
     MenuItem.OnMenuItemClickListener onMenuItemSaveClickListener = new MenuItem.OnMenuItemClickListener() {
         @Override
         public boolean onMenuItemClick(MenuItem item) {
+            progressDialog.show();
             save();
-            finish();
             return false;
         }
     };
@@ -94,20 +94,25 @@ public class ObjectActivity extends AppCompatActivity {
         objects.setNameObject(activityObjectBinding.itemName.getText().toString());
         objects.setLocation(activityObjectBinding.itemLocation.getText().toString(), new Date());
         objects.setUser(ParseUser.getCurrentUser());
-        File photo = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", "temp.jpg");
+        File photo = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", "temp.jpg"); // Cria uma imagem sem nada se não existir uma.
         objects.setImageObject(photo);
         objects.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
+                progressDialog.dismiss();
+                finish();
             }
         });
+
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activityObjectBinding = DataBindingUtil.setContentView(this, R.layout.activity_object);
-        progressDialog = new ProgressDialog(getApplicationContext());
+        progressDialog = new ProgressDialog(ObjectActivity.this);
+        progressDialog.setTitle(R.string.loading);
+        progressDialog.setCancelable(false);
         photo = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", "temp.jpg");
         configureToolbar();
         configureTriggers();

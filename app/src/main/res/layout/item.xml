@@ -18,7 +18,7 @@
                 android:layout_height="110dp">
 
                 <ImageView
-                    android:id="@+id/profile_image"
+                    android:id="@+id/object_image"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"

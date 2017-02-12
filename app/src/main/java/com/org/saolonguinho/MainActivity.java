@@ -35,11 +35,13 @@ public class MainActivity extends AppCompatActivity {
         activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         configureToolbar();
         configureNavigation();
-        setFragment();
+
         if (ParseUser.getCurrentUser() == null) {
             Intent intent = LoginActivity.createIntent(getApplicationContext());
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
+        }else{
+            setFragment();
         }
     }
 

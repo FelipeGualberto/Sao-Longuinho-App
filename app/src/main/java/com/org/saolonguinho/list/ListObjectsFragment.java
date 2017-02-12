@@ -14,6 +14,7 @@ import com.org.saolonguinho.R;
 import com.org.saolonguinho.object.ObjectActivity;
 import com.org.saolonguinho.shared.models.Location;
 import com.org.saolonguinho.shared.models.Objects;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
@@ -36,39 +37,93 @@ public class ListObjectsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_list_objects, container, false);
-        ;
         FloatingActionButton floatingActionButton = (FloatingActionButton) view.findViewById(R.id.floating_btn);
         floatingActionButton.setOnClickListener(onClickFloatingListener);
         rv = (RecyclerView) view.findViewById(R.id.rv);
+        rv.setLayoutManager(new LinearLayoutManager(getContext()));
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setTitle(R.string.loading);
         progressDialog.setCancelable(false);
-        setRecyclerView();
+        if (isEmptyLocalDataStore()) {
+            updateDataFromServer();
+            progressDialog.show();
+        } else {
+            loadItens();
+            updateDataFromServer();
+        }
         return view;
     }
 
-    private void setRecyclerView() {
-        ParseQuery<Objects> objectsParseQuery = ParseQuery.getQuery(Objects.class);
-        objectsParseQuery.include(Objects.LOCATION);
-        objectsParseQuery.whereEqualTo(Objects.USER, ParseUser.getCurrentUser());
-        progressDialog.show();
-        objectsParseQuery.findInBackground(new FindCallback<Objects>() {
-            @Override
-            public void done(List<Objects> objects, ParseException e) {
-                if(e == null) {
-                    ListObjectsAdapter listObjectsAdapter = new ListObjectsAdapter(objects);
-                    rv.setAdapter(listObjectsAdapter);
-                    rv.setLayoutManager(new LinearLayoutManager(getContext()));
-                    progressDialog.dismiss();
-                }
-                else{
-                    progressDialog.dismiss();
+    private void updateDataFromServer() {
+        final ParseQuery<Objects> query = ParseQuery.getQuery(Objects.class);
+        query.include(Objects.LOCATION);
+        query.whereEqualTo(Objects.USER, ParseUser.getCurrentUser());
+        query.findInBackground(new FindCallback<Objects>() {
+            public void done(final List<Objects> list, ParseException e) {
+                if (e != null) { // Houve um erro
+                    switch (e.getCode()) {
+                        case ParseException.CONNECTION_FAILED:
+                    }
+                    return;
+                } else {
+                    Objects.unpinAllInBackground(new DeleteCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e != null) return; // Houve um erro.
+                            Objects.pinAllInBackground(list);
+                            loadItens();
+                        }
+                    });
                 }
             }
         });
-
     }
 
+    private void loadItens() {
+        ParseQuery<Objects> query = ParseQuery.getQuery(Objects.class);
+        query.include(Objects.LOCATION);
+        query.fromLocalDatastore();
+        query.findInBackground(new FindCallback<Objects>() {
+            @Override
+            public void done(List<Objects> list, ParseException e) {
+                if (e == null) {
+                    ListObjectsAdapter listObjectsAdapter = new ListObjectsAdapter(list);
+                    rv.setAdapter(listObjectsAdapter);
+                    rv.getAdapter().notifyDataSetChanged();
+                    progressDialog.dismiss();
+                } else {
+                }
+            }
+        });
+    }
+
+    public boolean isEmptyLocalDataStore() {
+        ParseQuery<Objects> query = ParseQuery.getQuery(Objects.class);
+        query.fromLocalDatastore();
+        try {
+            return query.count() == 0;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /*    private void setRecyclerView() {
+            ParseQuery<Objects> objectsParseQuery = ParseQuery.getQuery(Objects.class);
+            objectsParseQuery.include(Objects.LOCATION);
+            objectsParseQuery.whereEqualTo(Objects.USER, ParseUser.getCurrentUser());
+            objectsParseQuery.findInBackground(new FindCallback<Objects>() {
+                @Override
+                public void done(List<Objects> objects, ParseException e) {
+                    if (e == null) {
+                        progressDialog.dismiss();
+                    } else {
+                        progressDialog.dismiss();
+                    }
+                }
+            });
+        }
+    */
     private final ListObjectsFragment newInstance() {
         return new ListObjectsFragment();
     }

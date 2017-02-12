@@ -49,8 +49,7 @@ import java.util.List;
             holder.binding.name.setText(mDataset.get(position).getNameObject());
             holder.binding.location.setText(mDataset.get(position).getLocation().getDescription());
             ImageLoader imageLoader = ImageLoader.getInstance();
-            imageLoader.displayImage(mDataset.get(position).getImageObject().getUrl(),holder.binding.profileImage);
-
+            imageLoader.displayImage(mDataset.get(position).getImageObject().getUrl(),holder.binding.objectImage);
 
         }
         @Override
