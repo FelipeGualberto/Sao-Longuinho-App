@@ -2,16 +2,14 @@ package com.org.saolonguinho.object;
 
 import android.app.Dialog;
 
-import android.content.Context;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.Button;
+import android.widget.TimePicker;
 
 import com.org.saolonguinho.R;
 
@@ -20,6 +18,17 @@ import com.org.saolonguinho.R;
  */
 
 public class DialogTimePicker extends DialogFragment {
+
+    public interface OnTimeSet {
+        public void onSet(int minute, int hour);
+    }
+
+    private OnTimeSet onTimeSet;
+    private int minute, hour;
+    public void setOnTimeSet(OnTimeSet onTimeSet) {
+        this.onTimeSet = onTimeSet;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +56,16 @@ public class DialogTimePicker extends DialogFragment {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                onTimeSet.onSet(minute,hour);
                 dismiss();
+            }
+        });
+        TimePicker timePicker = ((TimePicker) view.findViewById(R.id.tp));
+        timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
+            @Override
+            public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+                DialogTimePicker.this.minute = minute;
+                DialogTimePicker.this.hour = hourOfDay;
             }
         });
         return view;

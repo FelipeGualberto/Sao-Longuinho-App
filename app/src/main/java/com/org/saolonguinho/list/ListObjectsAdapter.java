@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.org.saolonguinho.R;
 import com.org.saolonguinho.databinding.ItemBinding;
 import com.org.saolonguinho.shared.models.Objects;
@@ -38,6 +40,7 @@ import java.util.List;
             LayoutInflater inflater = (LayoutInflater) parent.getContext().getSystemService( Context.LAYOUT_INFLATER_SERVICE );
             ItemBinding itemBinding = DataBindingUtil.inflate( inflater, R.layout.item, parent, false);
             ViewHolder vh = new ViewHolder(itemBinding);
+            ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(itemBinding.getRoot().getContext()));
             return vh;
         }
 
@@ -45,6 +48,8 @@ import java.util.List;
         public void onBindViewHolder(ViewHolder holder, int position) {
             holder.binding.name.setText(mDataset.get(position).getNameObject());
             holder.binding.location.setText(mDataset.get(position).getLocation().getDescription());
+            ImageLoader imageLoader = ImageLoader.getInstance();
+            imageLoader.displayImage(mDataset.get(position).getImageObject().getUrl(),holder.binding.objectImage);
 
         }
         @Override

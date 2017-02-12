@@ -2,7 +2,6 @@ package com.org.saolonguinho.object;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
@@ -13,13 +12,9 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.org.saolonguinho.R;
 import com.org.saolonguinho.databinding.ActivityObjectBinding;
@@ -35,7 +30,7 @@ public class ObjectActivity extends AppCompatActivity {
     ActivityObjectBinding activityObjectBinding;
     ProgressDialog progressDialog;
 
-    File photo ;
+    File photo;
 
     private static final int TAKE_PICTURE = 1;
     private Uri imageUri;
@@ -67,6 +62,7 @@ public class ObjectActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             DialogTimePicker dialogTimePicker = DialogTimePicker.newInstance();
+            dialogTimePicker.setOnTimeSet(onTimeSet);
             dialogTimePicker.show(getSupportFragmentManager(), "ObjectActivity");
         }
     };
@@ -74,16 +70,22 @@ public class ObjectActivity extends AppCompatActivity {
     MenuItem.OnMenuItemClickListener onMenuItemSaveClickListener = new MenuItem.OnMenuItemClickListener() {
         @Override
         public boolean onMenuItemClick(MenuItem item) {
+            progressDialog.show();
             save();
-            finish();
             return false;
         }
     };
 
-   View.OnClickListener onClickChangePhotoListener = new View.OnClickListener() {
+    View.OnClickListener onClickChangePhotoListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             takePhoto();
+        }
+    };
+
+    DialogTimePicker.OnTimeSet onTimeSet = new DialogTimePicker.OnTimeSet() {
+        @Override
+        public void onSet(int minute, int hour) {
         }
     };
 
@@ -92,21 +94,26 @@ public class ObjectActivity extends AppCompatActivity {
         objects.setNameObject(activityObjectBinding.itemName.getText().toString());
         objects.setLocation(activityObjectBinding.itemLocation.getText().toString(), new Date());
         objects.setUser(ParseUser.getCurrentUser());
-        File photo = new File(Environment.getExternalStorageDirectory() +  File.separator + "SaoLonguinho", "temp.jpg");
+        File photo = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", "temp.jpg"); // Cria uma imagem sem nada se não existir uma.
         objects.setImageObject(photo);
         objects.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
+                progressDialog.dismiss();
+                finish();
             }
         });
+
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activityObjectBinding = DataBindingUtil.setContentView(this, R.layout.activity_object);
-        progressDialog = new ProgressDialog(getApplicationContext());
-        photo = new File(Environment.getExternalStorageDirectory() +  File.separator + "SaoLonguinho", "temp.jpg");
+        progressDialog = new ProgressDialog(ObjectActivity.this);
+        progressDialog.setTitle(R.string.loading);
+        progressDialog.setCancelable(false);
+        photo = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", "temp.jpg");
         configureToolbar();
         configureTriggers();
     }
@@ -145,5 +152,4 @@ public class ObjectActivity extends AppCompatActivity {
                 }
         }
     }
-
 }
