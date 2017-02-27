@@ -7,11 +7,14 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
+import com.facebook.FacebookSdk;
+import com.org.saolonguinho.login.LoginActivity;
 import com.org.saolonguinho.shared.models.Location;
 import com.org.saolonguinho.shared.models.Objects;
 import com.org.saolonguinho.shared.models.Reminder;
 import com.parse.Parse;
 import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
 
@@ -35,5 +38,8 @@ public class ApplicationSaoLonguinho extends Application {
                 .server(getString(R.string.server))
                 .clientKey(getString(R.string.client_key))
                 .enableLocalDataStore().build());
+
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        ParseFacebookUtils.initialize(this);
     }
 }
