@@ -25,9 +25,12 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.org.saolonguinho.R;
 import com.org.saolonguinho.databinding.ActivityObjectBinding;
+import com.org.saolonguinho.list.ListObjectsAdapter;
 import com.org.saolonguinho.shared.models.Objects;
+import com.parse.FindCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.http.ParseHttpRequest;
@@ -35,18 +38,21 @@ import com.parse.http.ParseHttpRequest;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 public class ObjectActivity extends AppCompatActivity {
     ActivityObjectBinding activityObjectBinding;
     ProgressDialog progressDialog;
 
-    File photo;
+    private File photo;
+    private Objects objects;
 
     private static final int TAKE_PICTURE = 1;
     private Uri imageUri;
 
-    public static Intent createIntent(Context context) {
+    public static Intent createIntent(Context context, String id) {
         Intent intent = new Intent(context, ObjectActivity.class);
+        intent.putExtra("id_object", id);
         return intent;
     }
 
@@ -61,9 +67,9 @@ public class ObjectActivity extends AppCompatActivity {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (isChecked) {
-                activityObjectBinding.alarmView.setVisibility(View.VISIBLE);
+        //        activityObjectBinding.alarmView.setVisibility(View.VISIBLE);
             } else {
-                activityObjectBinding.alarmView.setVisibility(View.GONE);
+        //        activityObjectBinding.alarmView.setVisibility(View.GONE);
             }
         }
     };
@@ -116,8 +122,32 @@ public class ObjectActivity extends AppCompatActivity {
         if (!directory.exists()) {
             directory.mkdir();
         }
+        if (getIntent().getStringExtra("id_object") != null) {
+            populateFields();
+        }
         configureToolbar();
         configureTriggers();
+    }
+
+    private void populateFields() {
+        final String id_object = getIntent().getStringExtra("id_object");
+        ParseQuery<Objects> query = ParseQuery.getQuery(Objects.class);
+        query.include(Objects.LOCATION);
+        query.fromLocalDatastore();
+        query.findInBackground(new FindCallback<Objects>() {
+            @Override
+            public void done(List<Objects> list, ParseException e) {
+                if (e == null) {
+                    objects = list.get(0);
+                    activityObjectBinding.itemName.setText(list.get(0).getNameObject());
+                    activityObjectBinding.itemLocation.setText(list.get(0).getLocation().getDescription());
+                    File file = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", id_object + ".png");
+                    Bitmap bitImage = BitmapFactory.decodeFile(file.getAbsolutePath());
+                    activityObjectBinding.ivPhoto.setImageBitmap(bitImage);
+                } else {
+                }
+            }
+        });
     }
 
     private void configureToolbar() {
@@ -129,7 +159,7 @@ public class ObjectActivity extends AppCompatActivity {
 
     private void configureTriggers() {
         activityObjectBinding.turnOnAlarm.setOnCheckedChangeListener(onSwitchClickListener);
-        activityObjectBinding.alarmView.setOnClickListener(onClickAlarmViewListener);
+      //  activityObjectBinding.alarmView.setOnClickListener(onClickAlarmViewListener);
         activityObjectBinding.toolbar.getMenu().findItem(R.id.action_save).setOnMenuItemClickListener(onMenuItemSaveClickListener);
         activityObjectBinding.btnChangePhoto.setOnClickListener(onClickChangePhotoListener);
     }
@@ -144,14 +174,25 @@ public class ObjectActivity extends AppCompatActivity {
     }
 
     private void save(boolean connection) {
-        Objects objects = new Objects();
+        final String id_object = getIntent().getStringExtra("id_object");
+        if(id_object == null) {
+            objects = new Objects();
+        }
         objects.setNameObject(activityObjectBinding.itemName.getText().toString());
         objects.setLocation(activityObjectBinding.itemLocation.getText().toString(), new Date());
         objects.setUser(ParseUser.getCurrentUser());
-        if ((photo != null) &&  connection) {
+        if ((photo != null) && connection) {
             objects.setImageObject(photo);
         }
-        objects.saveEventually();
+        objects.saveEventually(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if(e == null) {
+                    File file = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", id_object + ".png");
+                    file.delete();
+                }
+            }
+        });
         progressDialog.dismiss();
         finish();
     }
@@ -184,14 +225,18 @@ public class ObjectActivity extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        save(true);
-
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                save(true);
+                            }
+                        }).start();
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 save(false);
-                Toast.makeText(getApplicationContext(),"Sem rede, tente enviar a foto posteriormente",Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Sem rede, tente enviar a foto posteriormente", Toast.LENGTH_LONG).show();
             }
         });
         queue.add(stringRequest);

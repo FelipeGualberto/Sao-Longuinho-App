@@ -29,7 +29,7 @@ public class ListObjectsFragment extends Fragment {
     View.OnClickListener onClickFloatingListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            startActivity(ObjectActivity.createIntent(getContext()));
+            startActivity(ObjectActivity.createIntent(getContext(),null));
         }
     };
 
