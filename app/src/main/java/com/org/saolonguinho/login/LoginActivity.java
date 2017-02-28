@@ -83,14 +83,12 @@ public class LoginActivity extends AppCompatActivity {
             ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this, permissions, new LogInCallback() {
                 @Override
                 public void done(ParseUser user, ParseException err) {
-                    err.getCode();
                     if (user == null) {
                         Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
                     } else if (user.isNew()) {
                         Log.d("MyApp", "User signed up and logged in through Facebook!");
                         getUserDetailFromFB();
                     } else {
-             //           Log.d("MyApp", user.getEmail()); ;
                         Log.d("MyApp", "User logged in through Facebook!");
                     }
                 }

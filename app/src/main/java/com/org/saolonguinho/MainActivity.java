@@ -152,7 +152,5 @@ public class MainActivity extends AppCompatActivity {
         alert.show();
     }
 
-    public static void printHashKey(Context pContext) {
 
-    }
 }

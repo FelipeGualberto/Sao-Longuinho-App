@@ -108,22 +108,29 @@ public class ListObjectsFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadItens();
+        updateDataFromServer();
+    }
+
     /*    private void setRecyclerView() {
-            ParseQuery<Objects> objectsParseQuery = ParseQuery.getQuery(Objects.class);
-            objectsParseQuery.include(Objects.LOCATION);
-            objectsParseQuery.whereEqualTo(Objects.USER, ParseUser.getCurrentUser());
-            objectsParseQuery.findInBackground(new FindCallback<Objects>() {
-                @Override
-                public void done(List<Objects> objects, ParseException e) {
-                    if (e == null) {
-                        progressDialog.dismiss();
-                    } else {
-                        progressDialog.dismiss();
+                ParseQuery<Objects> objectsParseQuery = ParseQuery.getQuery(Objects.class);
+                objectsParseQuery.include(Objects.LOCATION);
+                objectsParseQuery.whereEqualTo(Objects.USER, ParseUser.getCurrentUser());
+                objectsParseQuery.findInBackground(new FindCallback<Objects>() {
+                    @Override
+                    public void done(List<Objects> objects, ParseException e) {
+                        if (e == null) {
+                            progressDialog.dismiss();
+                        } else {
+                            progressDialog.dismiss();
+                        }
                     }
-                }
-            });
-        }
-    */
+                });
+            }
+        */
     private final ListObjectsFragment newInstance() {
         return new ListObjectsFragment();
     }

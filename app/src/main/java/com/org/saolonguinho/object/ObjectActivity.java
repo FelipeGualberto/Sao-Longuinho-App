@@ -15,15 +15,25 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.org.saolonguinho.R;
 import com.org.saolonguinho.databinding.ActivityObjectBinding;
 import com.org.saolonguinho.shared.models.Objects;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.parse.http.ParseHttpRequest;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 
 public class ObjectActivity extends AppCompatActivity {
@@ -71,7 +81,13 @@ public class ObjectActivity extends AppCompatActivity {
         @Override
         public boolean onMenuItemClick(MenuItem item) {
             progressDialog.show();
-            save();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    //save();
+                    testConnection();
+                }
+            }).start();
             return false;
         }
     };
@@ -89,23 +105,6 @@ public class ObjectActivity extends AppCompatActivity {
         }
     };
 
-    private void save() {
-        Objects objects = new Objects();
-        objects.setNameObject(activityObjectBinding.itemName.getText().toString());
-        objects.setLocation(activityObjectBinding.itemLocation.getText().toString(), new Date());
-        objects.setUser(ParseUser.getCurrentUser());
-        File photo = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", "temp.jpg"); // Cria uma imagem sem nada se não existir uma.
-        objects.setImageObject(photo);
-        objects.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                progressDialog.dismiss();
-                finish();
-            }
-        });
-
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,7 +112,10 @@ public class ObjectActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(ObjectActivity.this);
         progressDialog.setTitle(R.string.loading);
         progressDialog.setCancelable(false);
-        photo = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", "temp.jpg");
+        File directory = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho");
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
         configureToolbar();
         configureTriggers();
     }
@@ -134,11 +136,24 @@ public class ObjectActivity extends AppCompatActivity {
 
     public void takePhoto() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        photo.mkdir();
+        photo = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", "temp.jpg");
         intent.putExtra(MediaStore.EXTRA_OUTPUT,
                 Uri.fromFile(photo));
         imageUri = Uri.fromFile(photo);
         startActivityForResult(intent, TAKE_PICTURE);
+    }
+
+    private void save(boolean connection) {
+        Objects objects = new Objects();
+        objects.setNameObject(activityObjectBinding.itemName.getText().toString());
+        objects.setLocation(activityObjectBinding.itemLocation.getText().toString(), new Date());
+        objects.setUser(ParseUser.getCurrentUser());
+        if ((photo != null) &&  connection) {
+            objects.setImageObject(photo);
+        }
+        objects.saveEventually();
+        progressDialog.dismiss();
+        finish();
     }
 
     @Override
@@ -150,6 +165,35 @@ public class ObjectActivity extends AppCompatActivity {
                     Bitmap bitImage = BitmapFactory.decodeFile(photo.getAbsolutePath());
                     activityObjectBinding.ivPhoto.setImageBitmap(bitImage);
                 }
+                if (resultCode == Activity.RESULT_CANCELED) {
+                    photo.delete();
+                    photo = null;
+                }
+                break;
+            case RESULT_CANCELED:
+                photo.delete();
+                photo = null;
+                break;
         }
+    }
+
+    private void testConnection() {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = "https://www.back4app.com/";
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        save(true);
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                save(false);
+                Toast.makeText(getApplicationContext(),"Sem rede, tente enviar a foto posteriormente",Toast.LENGTH_LONG).show();
+            }
+        });
+        queue.add(stringRequest);
     }
 }
