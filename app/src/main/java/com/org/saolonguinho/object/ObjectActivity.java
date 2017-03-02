@@ -133,6 +133,7 @@ public class ObjectActivity extends AppCompatActivity {
         final String id_object = getIntent().getStringExtra("id_object");
         ParseQuery<Objects> query = ParseQuery.getQuery(Objects.class);
         query.include(Objects.LOCATION);
+        query.whereEqualTo("objectId", id_object);
         query.fromLocalDatastore();
         query.findInBackground(new FindCallback<Objects>() {
             @Override

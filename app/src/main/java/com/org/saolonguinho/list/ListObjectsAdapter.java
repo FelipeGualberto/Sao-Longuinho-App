@@ -1,9 +1,13 @@
 package com.org.saolonguinho.list;
 
+import android.app.Activity;
+
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -26,49 +30,61 @@ import java.util.List;
  * Created by Felipe on 08/10/2016.
  */
 
-    public class ListObjectsAdapter extends RecyclerView.Adapter<ListObjectsAdapter.ViewHolder> {
-        private List<Objects> mDataset;
+public class ListObjectsAdapter extends RecyclerView.Adapter<ListObjectsAdapter.ViewHolder> {
+    private List<Objects> mDataset;
 
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            ItemBinding binding;
-            public ViewHolder(ItemBinding itemBinding) {
-                super(itemBinding.getRoot());
-                binding = itemBinding;
-                itemBinding.getRoot().setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = ObjectActivity.createIntent(v.getContext(),mDataset.get(getAdapterPosition()).getObjectId());
-                        v.getContext().startActivity(intent);
-                    }
-                });
-                itemBinding.sharebtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent sendIntent = new Intent();
-                        sendIntent.setAction(Intent.ACTION_SEND);
-                        String name = mDataset.get(getAdapterPosition()).getNameObject();
-                        String location =  mDataset.get(getAdapterPosition()).getLocation().getDescription();
-                        sendIntent.putExtra(Intent.EXTRA_TEXT, "Localização do objeto " + name + ": " + location + " - São Longuinho App");
-                        sendIntent.setType("text/plain");
-                        v.getContext().startActivity(sendIntent);
-                    }
-                });
-            }
-        }
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        ItemBinding binding;
 
-        public ListObjectsAdapter(List<Objects> myDataset) {
-            mDataset = myDataset;
+        public ViewHolder(final ItemBinding itemBinding) {
+            super(itemBinding.getRoot());
+            binding = itemBinding;
+            itemBinding.getRoot().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = ObjectActivity.createIntent(v.getContext(), mDataset.get(getAdapterPosition()).getObjectId());
+                    v.getContext().startActivity(intent);
+                }
+            });
+            itemBinding.sharebtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    String name = mDataset.get(getAdapterPosition()).getNameObject();
+                    String location = mDataset.get(getAdapterPosition()).getLocation().getDescription();
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, "Localização do objeto " + name + ": " + location + " - São Longuinho App");
+                    sendIntent.setType("text/plain");
+                    v.getContext().startActivity(sendIntent);
+                }
+            });
+            itemBinding.objectImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("Id", mDataset.get(getAdapterPosition()).getObjectId());
+                    Context context = v.getContext();
+                    // FragmentManager fragmentManager = (FragmentManager) mActivity.getFragmentManager();
+                    FragmentManager fm = ((Activity) context).getFragmentManager();
+                    DialogImagePreview.newInstance(bundle).show(fm, "imagePreview");
+                }
+            });
         }
+    }
 
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent,
-                                             int viewType) {
-            LayoutInflater inflater = (LayoutInflater) parent.getContext().getSystemService( Context.LAYOUT_INFLATER_SERVICE );
-            ItemBinding itemBinding = DataBindingUtil.inflate( inflater, R.layout.item, parent, false);
-            ViewHolder vh = new ViewHolder(itemBinding);
-            ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(itemBinding.getRoot().getContext()));
-            return vh;
-        }
+    public ListObjectsAdapter(List<Objects> myDataset) {
+        mDataset = myDataset;
+    }
+
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent,
+                                         int viewType) {
+        LayoutInflater inflater = (LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        ItemBinding itemBinding = DataBindingUtil.inflate(inflater, R.layout.item, parent, false);
+        ViewHolder vh = new ViewHolder(itemBinding);
+        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(itemBinding.getRoot().getContext()));
+        return vh;
+    }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
@@ -77,7 +93,6 @@ import java.util.List;
         holder.binding.name.setText(mDataset.get(position).getNameObject());
         holder.binding.location.setText(mDataset.get(position).getLocation().getDescription());
         ImageLoader imageLoader = ImageLoader.getInstance();
-
         File file = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", id_object + ".png");
         if ((mDataset.get(position).getImageObject() != null)) {
             if (!file.exists()) {
@@ -100,10 +115,11 @@ import java.util.List;
             }
         }
     }
-        @Override
-        public int getItemCount() {
-            return mDataset.size();
-        }
+
+    @Override
+    public int getItemCount() {
+        return mDataset.size();
     }
+}
 
 
