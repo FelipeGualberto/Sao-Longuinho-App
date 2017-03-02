@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.org.saolonguinho.MainActivity;
 import com.org.saolonguinho.R;
 import com.org.saolonguinho.object.ObjectActivity;
 import com.org.saolonguinho.shared.models.Location;
@@ -51,6 +52,7 @@ public class ListObjectsFragment extends Fragment {
             loadItens();
             updateDataFromServer();
         }
+        ((MainActivity) getActivity()).setInterface(interfaceMain);
         return view;
     }
 
@@ -96,6 +98,24 @@ public class ListObjectsFragment extends Fragment {
             }
         });
     }
+    private void loadItensLocalSpecific(String text) {
+        ParseQuery<Objects> query = ParseQuery.getQuery(Objects.class);
+        query.whereMatches(Objects.NAME, "("+text+")", "i");
+        query.include(Objects.LOCATION);
+        query.fromLocalDatastore();
+        query.findInBackground(new FindCallback<Objects>() {
+            @Override
+            public void done(List<Objects> list, ParseException e) {
+                if (e == null) {
+                    ListObjectsAdapter listObjectsAdapter = new ListObjectsAdapter(list);
+                    rv.setAdapter(listObjectsAdapter);
+                    rv.getAdapter().notifyDataSetChanged();
+                    progressDialog.dismiss();
+                } else {
+                }
+            }
+        });
+    }
 
     public boolean isEmptyLocalDataStore() {
         ParseQuery<Objects> query = ParseQuery.getQuery(Objects.class);
@@ -115,23 +135,19 @@ public class ListObjectsFragment extends Fragment {
         updateDataFromServer();
     }
 
-    /*    private void setRecyclerView() {
-                ParseQuery<Objects> objectsParseQuery = ParseQuery.getQuery(Objects.class);
-                objectsParseQuery.include(Objects.LOCATION);
-                objectsParseQuery.whereEqualTo(Objects.USER, ParseUser.getCurrentUser());
-                objectsParseQuery.findInBackground(new FindCallback<Objects>() {
-                    @Override
-                    public void done(List<Objects> objects, ParseException e) {
-                        if (e == null) {
-                            progressDialog.dismiss();
-                        } else {
-                            progressDialog.dismiss();
-                        }
-                    }
-                });
-            }
-        */
     private final ListObjectsFragment newInstance() {
         return new ListObjectsFragment();
     }
+
+    MainActivity.InterfaceMain interfaceMain = new MainActivity.InterfaceMain() {
+        @Override
+        public void onSearch(String text) {
+            loadItensLocalSpecific(text);
+        }
+
+        @Override
+        public void update() {
+            loadItens();
+        }
+    };
 }

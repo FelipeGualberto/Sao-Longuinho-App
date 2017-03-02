@@ -23,22 +23,28 @@
                   android:exported="true"/>
         <meta-data android:name="com.facebook.sdk.ApplicationId"
                    android:value="@string/facebook_app_id"/>
-        <activity android:name="com.org.saolonguinho.MainActivity">
+        <activity android:name="com.org.saolonguinho.MainActivity"
+                  android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".login.LoginActivity">
+        <activity android:name=".login.LoginActivity"
+                  android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".signup.SignupActivity">
+        <activity android:name=".signup.SignupActivity"
+                  android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".about.AboutActivity">
+        <activity android:name=".about.AboutActivity"
+                  android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".object.ObjectActivity">
+        <activity android:name=".object.ObjectActivity"
+                  android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".help.HelpActivity">
+        <activity android:name=".help.HelpActivity"
+                  android:screenOrientation="portrait">
         </activity>
 
 

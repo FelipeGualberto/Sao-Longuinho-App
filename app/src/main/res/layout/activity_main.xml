@@ -16,6 +16,25 @@
             android:layout_height="?android:attr/actionBarSize"
             android:background="#FFC107">
         </android.support.v7.widget.Toolbar>
+        <FrameLayout
+            android:id="@+id/layout_search"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/search"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:drawableLeft="@drawable/ic_search_black_24dp"
+            />
+
+            <ImageView
+                android:id="@+id/cancel_search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|center_vertical"
+                android:src="@drawable/ic_clear_black_24dp"/>
+        </FrameLayout>
 
         <android.support.v4.widget.DrawerLayout
             android:id="@+id/drw_lyt_main"

@@ -20,8 +20,8 @@ public class Objects extends ParseObject {
 
     public static final String LOCATION = "location";
     public static final String USER = "user";
-    public final String NAME = "name";
-    public final String IMAGE = "image";
+    public static final String NAME = "name";
+    public static final String IMAGE = "image";
 
     public String getNameObject() {
         return getString(NAME);

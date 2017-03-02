@@ -14,8 +14,8 @@
             android:orientation="horizontal">
 
             <FrameLayout
-                android:layout_width="110dp"
-                android:layout_height="110dp">
+                android:layout_width="125dp"
+                android:layout_height="125dp">
 
                 <ImageView
                     android:id="@+id/object_image"
@@ -52,8 +52,9 @@
                     android:textSize="13sp"/>
 
                 <ImageButton
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:id="@+id/sharebtn"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
                     android:layout_gravity="right"
                     android:layout_weight="1"
                     android:background="@null"

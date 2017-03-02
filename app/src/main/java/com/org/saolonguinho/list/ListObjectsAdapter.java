@@ -41,6 +41,18 @@ import java.util.List;
                         v.getContext().startActivity(intent);
                     }
                 });
+                itemBinding.sharebtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent sendIntent = new Intent();
+                        sendIntent.setAction(Intent.ACTION_SEND);
+                        String name = mDataset.get(getAdapterPosition()).getNameObject();
+                        String location =  mDataset.get(getAdapterPosition()).getLocation().getDescription();
+                        sendIntent.putExtra(Intent.EXTRA_TEXT, "Localização do objeto " + name + ": " + location + " - São Longuinho App");
+                        sendIntent.setType("text/plain");
+                        v.getContext().startActivity(sendIntent);
+                    }
+                });
             }
         }
 
