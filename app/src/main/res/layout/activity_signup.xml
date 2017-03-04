@@ -88,7 +88,7 @@
                     android:inputType="textVisiblePassword"/>
 
                 <Button
-                    android:id="@+id/button"
+                    android:id="@+id/buttonSignup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"

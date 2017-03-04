@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.transition.TransitionPropagation;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -84,7 +85,6 @@ public class LoginActivity extends AppCompatActivity {
                     } else if (user.isNew()) {
                         Log.d("MyApp", "User signed up and logged in through Facebook!");
                         getUserDetailFromFB();
-                        startSaoLonguinho();
                     } else {
                         startSaoLonguinho();
                         Log.d("MyApp", "User logged in through Facebook!");
@@ -104,17 +104,26 @@ public class LoginActivity extends AppCompatActivity {
         GraphRequest request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
             @Override
             public void onCompleted(JSONObject object, GraphResponse response) {
+                String name = "";
+                String email = "";
+                boolean isOk = true;
                 try {
-                    object.getString("name");
+                    name = object.getString("name");
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    isOk = false;
+                    problemToast();
                 }
                 try {
-                    object.getString("email");
+                    email = object.getString("email");
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    isOk = false;
+                    problemToast();
                 }
-                saveNewUser();
+                if (isOk) {
+                    saveNewUser(name, email);
+                }
             }
         });
         Bundle parameters = new Bundle();
@@ -123,28 +132,29 @@ public class LoginActivity extends AppCompatActivity {
         request.executeAsync();
     }
 
-    void saveNewUser() {
+    void saveNewUser(String name, String email) {
         ParseUser user = ParseUser.getCurrentUser();
-        //  user.setUsername(t_username.getText().toString());
-        //  user.setEmail(t_email.getText().toString());
+       // user.setEmail(email);
+       // user.setUsername(name);
         user.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                //    alertDisplayer("First Time Login Welcome", "User:" + t_username.getText().toString() + " Login.Email:" + t_email.getText().toString());
+                if (e == null) {
+                    startSaoLonguinho();
+                } else {
+                    problemToast();
+                }
             }
         });
-    }
-
-    void getUserDetailFromParse() {
-        ParseUser user = ParseUser.getCurrentUser();
-        //  t_username.setText(user.getUsername());
-        //  t_email.setText(user.getEmail());
-        //  alertDisplayer("Welcome Back","User:"+t_username.getText().toString()+" Login.Email:"+t_email.getText().toString());
     }
 
     void startSaoLonguinho() {
         Intent intent = MainActivity.createIntent(getApplicationContext());
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
+    }
+
+    void problemToast(){
+        Toast.makeText(getApplicationContext(), "Um problema ocorreu, por favor tente novamente", Toast.LENGTH_LONG).show();
     }
 }
