@@ -49,18 +49,6 @@
                     android:textColorLink="#FAFAFA"/>
 
                 <EditText
-                    android:id="@+id/userNameText"
-                    android:layout_width="fill_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginTop="10dp"
-                    android:background="#33212121"
-                    android:ellipsize="start"
-                    android:hint="Seu Nome"
-                    android:paddingLeft="3dp"
-                    android:textColorLink="#FAFAFA"/>
-                <EditText
                     android:id="@+id/passwordText"
                     android:layout_width="fill_parent"
                     android:layout_height="48dp"

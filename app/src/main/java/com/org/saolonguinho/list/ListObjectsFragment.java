@@ -1,14 +1,20 @@
 package com.org.saolonguinho.list;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.org.saolonguinho.MainActivity;
 import com.org.saolonguinho.R;
@@ -17,20 +23,36 @@ import com.org.saolonguinho.shared.models.Location;
 import com.org.saolonguinho.shared.models.Objects;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.RequestPasswordResetCallback;
 
 import java.util.List;
 
 public class ListObjectsFragment extends Fragment {
     private RecyclerView rv;
     private ProgressDialog progressDialog;
+    Boolean isVerified = false;
     View.OnClickListener onClickFloatingListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            startActivity(ObjectActivity.createIntent(getContext(),null));
+            ListObjectsAdapter adapter = (ListObjectsAdapter) rv.getAdapter();
+            if ((!isVerified) && (adapter.getItemCount() > 4)) {
+                Toast.makeText(getContext(), "Por favor verifique seu email para poder continuar adicionando mais itens (Reinicie a aplicação já tenha feito!)", Toast.LENGTH_LONG).show();
+                Handler handler = new Handler();
+                Runnable r = new Runnable() {
+                    public void run() {
+                        createDialogSendEmailConfirmAgain();
+                    }
+                };
+                handler.postDelayed(r, 2000);
+            } else {
+                startActivity(ObjectActivity.createIntent(getContext(), null));
+            }
         }
     };
 
@@ -50,8 +72,8 @@ public class ListObjectsFragment extends Fragment {
             progressDialog.show();
         } else {
             loadItens();
-            updateDataFromServer();
         }
+        verifyEmailStatus();
         ((MainActivity) getActivity()).setInterface(interfaceMain);
         return view;
     }
@@ -98,9 +120,10 @@ public class ListObjectsFragment extends Fragment {
             }
         });
     }
+
     private void loadItensLocalSpecific(String text) {
         ParseQuery<Objects> query = ParseQuery.getQuery(Objects.class);
-        query.whereMatches(Objects.NAME, "("+text+")", "i");
+        query.whereMatches(Objects.NAME, "(" + text + ")", "i");
         query.include(Objects.LOCATION);
         query.fromLocalDatastore();
         query.findInBackground(new FindCallback<Objects>() {
@@ -132,7 +155,7 @@ public class ListObjectsFragment extends Fragment {
     public void onResume() {
         super.onResume();
         loadItens();
-        updateDataFromServer();
+        verifyEmailStatus();
     }
 
     private final ListObjectsFragment newInstance() {
@@ -147,7 +170,52 @@ public class ListObjectsFragment extends Fragment {
 
         @Override
         public void update() {
-            loadItens();
+            updateDataFromServer();
         }
     };
+
+    private void verifyEmailStatus() {
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        boolean verified = sharedPref.getBoolean("emailVerified", false);
+        if (verified) {
+            isVerified = verified;
+        } else {
+            ParseUser.getCurrentUser().fetchInBackground(new GetCallback<ParseObject>() {
+                @Override
+                public void done(ParseObject object, ParseException e) {
+                    if (e != null) {
+                        Toast.makeText(getContext(), "Sem internet", Toast.LENGTH_LONG).show();
+                    } else {
+                        isVerified = ParseUser.getCurrentUser().getBoolean("emailVerified");
+                        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putBoolean("emailVerified", isVerified);
+                        editor.apply();
+                    }
+                }
+            });
+        }
+    }
+
+    private void createDialogSendEmailConfirmAgain() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setMessage("Você deseja enviar outro email de confirmação?");
+        builder.setCancelable(true);
+        builder.setPositiveButton("Sim",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        ParseUser.getCurrentUser().setEmail(ParseUser.getCurrentUser().getEmail());
+                        ParseUser.getCurrentUser().saveInBackground();
+                        Toast.makeText(getContext(), "Enviado!", Toast.LENGTH_LONG).show();
+                    }
+                });
+        builder.setNegativeButton("Não",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
 }

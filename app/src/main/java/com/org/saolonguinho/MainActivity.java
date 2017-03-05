@@ -14,7 +14,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Base64;
@@ -22,13 +21,13 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import com.org.saolonguinho.about.AboutActivity;
 import com.org.saolonguinho.databinding.ActivityMainBinding;
 import com.org.saolonguinho.help.HelpActivity;
 import com.org.saolonguinho.list.ListObjectsFragment;
 import com.org.saolonguinho.login.LoginActivity;
-import com.parse.Parse;
 import com.parse.ParseUser;
 
 import java.security.MessageDigest;
@@ -50,8 +49,18 @@ public class MainActivity extends AppCompatActivity {
         public boolean onMenuItemClick(MenuItem item) {
             activityMainBinding.layoutSearch.setVisibility(View.VISIBLE);
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.toggleSoftInput(0,InputMethodManager.HIDE_IMPLICIT_ONLY);
+            imm.toggleSoftInput(0, InputMethodManager.HIDE_IMPLICIT_ONLY);
             activityMainBinding.search.requestFocus();
+            return true;
+        }
+    };
+
+    MenuItem.OnMenuItemClickListener onMenuItemUpdateClickListener = new MenuItem.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            interfaceMain.update();
+            item.setVisible(false);
+            Toast.makeText(getApplicationContext(), "Atualizando dados...", Toast.LENGTH_SHORT).show();
             return true;
         }
     };
@@ -62,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         configureToolbar();
         configureNavigation();
-        configureTriggers();
+        setTriggers();
         if (ParseUser.getCurrentUser() == null) {
             Intent intent = LoginActivity.createIntent(getApplicationContext());
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -70,23 +79,11 @@ public class MainActivity extends AppCompatActivity {
         } else {
             setFragment();
         }
-        try {
-            PackageInfo info = getApplicationContext().getPackageManager().getPackageInfo(getApplicationContext().getPackageName(), PackageManager.GET_SIGNATURES);
-            for (Signature signature : info.signatures) {
-                MessageDigest md = MessageDigest.getInstance("SHA");
-                md.update(signature.toByteArray());
-                String hashKey = new String(Base64.encode(md.digest(), 0));
-                Log.i(TAG, "printHashKey() Hash Key: " + hashKey);
-            }
-        } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, "printHashKey()", e);
-        } catch (Exception e) {
-            Log.e(TAG, "printHashKey()", e);
-        }
     }
 
-    private void configureTriggers() {
+    private void setTriggers() {
         activityMainBinding.toolbar.getMenu().findItem(R.id.action_search).setOnMenuItemClickListener(onMenuItemSearchClickListener);
+        activityMainBinding.toolbar.getMenu().findItem(R.id.action_update).setOnMenuItemClickListener(onMenuItemUpdateClickListener);
         activityMainBinding.search.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {

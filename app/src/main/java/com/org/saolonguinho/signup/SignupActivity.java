@@ -1,8 +1,10 @@
 package com.org.saolonguinho.signup;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -12,8 +14,10 @@ import android.widget.Toast;
 import com.org.saolonguinho.MainActivity;
 import com.org.saolonguinho.R;
 import com.org.saolonguinho.databinding.ActivitySignupBinding;
+import com.org.saolonguinho.login.LoginActivity;
 import com.parse.ParseException;
 import com.parse.ParseUser;
+import com.parse.RequestPasswordResetCallback;
 import com.parse.SignUpCallback;
 
 public class SignupActivity extends AppCompatActivity {
@@ -29,10 +33,10 @@ public class SignupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         activitySignupBinding = DataBindingUtil.setContentView(this, R.layout.activity_signup);
         setToolbar();
-        configTriggers();
+        setTriggers();
     }
 
-    private void configTriggers() {
+    private void setTriggers() {
         activitySignupBinding.buttonSignup.setOnClickListener(onClickSignup);
     }
 
@@ -52,7 +56,6 @@ public class SignupActivity extends AppCompatActivity {
     View.OnClickListener onClickSignup = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            String name = activitySignupBinding.userNameText.getText().toString();
             String email = activitySignupBinding.emailText.getText().toString();
             String password = activitySignupBinding.passwordText.getText().toString();
             String password_again = activitySignupBinding.passwordConfirmText.getText().toString();
@@ -99,4 +102,5 @@ public class SignupActivity extends AppCompatActivity {
     void problemToast() {
         Toast.makeText(getApplicationContext(), "Um problema ocorreu, por favor tente novamente", Toast.LENGTH_LONG).show();
     }
+
 }
