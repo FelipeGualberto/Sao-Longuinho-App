@@ -3,5 +3,8 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/action_save" android:title="Procurar"
           android:icon="@drawable/ic_done_black_24dp"
+          android:orderInCategory="2" app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_delete" android:title="Apagar"
+          android:icon="@drawable/ic_delete_black_24dp"
           android:orderInCategory="1" app:showAsAction="ifRoom" />
 </menu>

@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -18,7 +19,9 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.org.saolonguinho.MainActivity;
 import com.org.saolonguinho.R;
+import com.org.saolonguinho.about.AboutActivity;
 import com.org.saolonguinho.databinding.ActivityLoginBinding;
+import com.org.saolonguinho.help.HelpActivity;
 import com.org.saolonguinho.signup.SignupActivity;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
@@ -52,6 +55,18 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Logando");
         setTriggers();
+        isFirstTime();
+    }
+
+    private void isFirstTime() {
+        SharedPreferences sharedPref =  LoginActivity.this.getPreferences(Context.MODE_PRIVATE);
+        boolean firstTime = sharedPref.getBoolean("firstTime", true);
+        if(firstTime) {
+            startActivity(HelpActivity.createIntent(getApplicationContext()));
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putBoolean("firstTime", false);
+            editor.apply();
+        }
     }
 
     private void setTriggers() {

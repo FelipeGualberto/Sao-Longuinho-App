@@ -19,39 +19,42 @@ import android.widget.Toast;
 import com.org.saolonguinho.MainActivity;
 import com.org.saolonguinho.R;
 import com.org.saolonguinho.object.ObjectActivity;
-import com.org.saolonguinho.shared.models.Location;
 import com.org.saolonguinho.shared.models.Objects;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.RequestPasswordResetCallback;
 
 import java.util.List;
 
 public class ListObjectsFragment extends Fragment {
     private RecyclerView rv;
     private ProgressDialog progressDialog;
-    Boolean isVerified = false;
+    private Boolean isVerified = false;
+    private Boolean forceUpdate = false;
     View.OnClickListener onClickFloatingListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             ListObjectsAdapter adapter = (ListObjectsAdapter) rv.getAdapter();
-            if ((!isVerified) && (adapter.getItemCount() > 4)) {
-                Toast.makeText(getContext(), "Por favor verifique seu email para poder continuar adicionando mais itens (Reinicie a aplicação já tenha feito!)", Toast.LENGTH_LONG).show();
-                Handler handler = new Handler();
-                Runnable r = new Runnable() {
-                    public void run() {
-                        createDialogSendEmailConfirmAgain();
-                    }
-                };
-                handler.postDelayed(r, 2000);
-            } else {
-                startActivity(ObjectActivity.createIntent(getContext(), null));
+            if(adapter.getItemCount() < 14) {
+                if ((!isVerified) && (adapter.getItemCount() > 2)) {
+                    Toast.makeText(getContext(), "Por favor verifique seu email para poder continuar adicionando mais itens (Reinicie a aplicação já tenha feito!)", Toast.LENGTH_LONG).show();
+                    Handler handler = new Handler();
+                    Runnable r = new Runnable() {
+                        public void run() {
+                            createDialogSendEmailConfirmAgain();
+                        }
+                    };
+                    handler.postDelayed(r, 2000);
+                } else {
+                    startActivity(ObjectActivity.createIntent(getContext(), null));
+                }
+            }else{
+                Toast.makeText(getContext(), "Estamos muito felizes por você está usando bastante o aplicativo!", Toast.LENGTH_LONG).show();
+                createThanksDialog();
             }
         }
     };
@@ -154,7 +157,13 @@ public class ListObjectsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        loadItens();
+        if(forceUpdate) {
+            loadItens();
+            updateDataFromServer();
+        }
+        else{
+            forceUpdate = true;
+        }
         verifyEmailStatus();
     }
 
@@ -213,6 +222,19 @@ public class ListObjectsFragment extends Fragment {
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void createThanksDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setMessage("Muito obrigado por está usando o São Longuinho! Para que você possa adicionar mais itens por favor mande um email para: fgualberto.santos@gmail.com");
+        builder.setCancelable(true);
+        builder.setPositiveButton("Ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
                     }
                 });
         AlertDialog alert = builder.create();

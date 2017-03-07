@@ -28,20 +28,19 @@
                 android:layout_height="match_parent"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
                 android:orientation="vertical">
 
                 <android.support.design.widget.TextInputLayout
                     android:id="@+id/item_place_layout"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="96dp"
                     android:layout_centerHorizontal="true">
 
                     <EditText
                         android:id="@+id/item_name"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:ems="10"
                         android:hint="Qual o nome do objeto?"
                         android:text=""/>
                 </android.support.design.widget.TextInputLayout>
@@ -55,7 +54,7 @@
                         android:id="@+id/item_location"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:hint="Onde o ele se encontra?"
+                        android:hint="Onde ele se encontra?"
                         android:text=""/>
                 </android.support.design.widget.TextInputLayout>
 
@@ -88,53 +87,53 @@
 
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp">
+                <!--               <LinearLayout
+                                   android:layout_width="match_parent"
+                                   android:layout_height="wrap_content"
+                                   android:layout_marginTop="5dp">
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Ligar/Desligar Alarme"/>
+                                   <TextView
+                                       android:layout_width="0dp"
+                                       android:layout_height="wrap_content"
+                                       android:layout_weight="1"
+                                       android:text="Ligar/Desligar Alarme"/>
 
-                    <Switch
-                        android:id="@+id/turn_on_alarm"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_weight="1"/>
-                </LinearLayout>
+                                   <Switch
+                                       android:id="@+id/turn_on_alarm"
+                                       android:layout_width="0dp"
+                                       android:layout_height="wrap_content"
+                                       android:layout_gravity="center"
+                                       android:layout_weight="1"/>
+                               </LinearLayout> -->
 
-    <!--            <android.support.v7.widget.CardView
-                    android:layout_width="match_parent"
-                    android:id="@+id/alarm_view"
-                    android:visibility="gone"
-                    android:layout_height="50dp">
+                <!--            <android.support.v7.widget.CardView
+                                android:layout_width="match_parent"
+                                android:id="@+id/alarm_view"
+                                android:visibility="gone"
+                                android:layout_height="50dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="horizontal">
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:orientation="horizontal">
 
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:text="Hora do Alarme"/>
+                                    <TextView
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:gravity="center"
+                                        android:text="Hora do Alarme"/>
 
-                        <TextView
-                            android:id="@+id/time"
-                            android:layout_width="0dp"
-                            android:gravity="center"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:text="00:00"/>
+                                    <TextView
+                                        android:id="@+id/time"
+                                        android:layout_width="0dp"
+                                        android:gravity="center"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:text="00:00"/>
 
-                    </LinearLayout>
-                </android.support.v7.widget.CardView>-->
+                                </LinearLayout>
+                            </android.support.v7.widget.CardView>-->
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

@@ -3,6 +3,7 @@ package com.org.saolonguinho.object;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
@@ -10,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -25,18 +27,15 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.org.saolonguinho.R;
 import com.org.saolonguinho.databinding.ActivityObjectBinding;
-import com.org.saolonguinho.list.ListObjectsAdapter;
+import com.org.saolonguinho.login.LoginActivity;
 import com.org.saolonguinho.shared.models.Objects;
 import com.parse.FindCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
-import com.parse.http.ParseHttpRequest;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -45,7 +44,7 @@ public class ObjectActivity extends AppCompatActivity {
     ProgressDialog progressDialog;
 
     private File photo;
-    private Objects objects;
+    private Objects object;
 
     private static final int TAKE_PICTURE = 1;
     private Uri imageUri;
@@ -67,9 +66,9 @@ public class ObjectActivity extends AppCompatActivity {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (isChecked) {
-        //        activityObjectBinding.alarmView.setVisibility(View.VISIBLE);
+                //        activityObjectBinding.alarmView.setVisibility(View.VISIBLE);
             } else {
-        //        activityObjectBinding.alarmView.setVisibility(View.GONE);
+                //        activityObjectBinding.alarmView.setVisibility(View.GONE);
             }
         }
     };
@@ -90,14 +89,19 @@ public class ObjectActivity extends AppCompatActivity {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    //save();
                     testConnection();
                 }
             }).start();
-            return false;
+            return true;
         }
     };
-
+    MenuItem.OnMenuItemClickListener onMenuItemDeleteClickListener = new MenuItem.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            createDialogDeleteObject();
+            return true;
+        }
+    };
     View.OnClickListener onClickChangePhotoListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -139,12 +143,15 @@ public class ObjectActivity extends AppCompatActivity {
             @Override
             public void done(List<Objects> list, ParseException e) {
                 if (e == null) {
-                    objects = list.get(0);
-                    activityObjectBinding.itemName.setText(list.get(0).getNameObject());
-                    activityObjectBinding.itemLocation.setText(list.get(0).getLocation().getDescription());
-                    File file = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", id_object + ".png");
-                    Bitmap bitImage = BitmapFactory.decodeFile(file.getAbsolutePath());
-                    activityObjectBinding.ivPhoto.setImageBitmap(bitImage);
+                    try {
+                        object = list.get(0);
+                        activityObjectBinding.itemName.setText(list.get(0).getNameObject());
+                        activityObjectBinding.itemLocation.setText(list.get(0).getLocation().getDescription());
+                        File file = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", id_object + ".png");
+                        Bitmap bitImage = BitmapFactory.decodeFile(file.getAbsolutePath());
+                        activityObjectBinding.ivPhoto.setImageBitmap(bitImage);
+                    } catch (Exception er) {
+                    }
                 } else {
                 }
             }
@@ -156,12 +163,16 @@ public class ObjectActivity extends AppCompatActivity {
         activityObjectBinding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
         activityObjectBinding.toolbar.setNavigationOnClickListener(onNavigationClickListener);
         activityObjectBinding.toolbar.inflateMenu(R.menu.menu_object_activity);
+        if (getIntent().getStringExtra("id_object") == null) {
+            activityObjectBinding.toolbar.getMenu().findItem(R.id.action_delete).setVisible(false);
+        }
     }
 
     private void configureTriggers() {
-        activityObjectBinding.turnOnAlarm.setOnCheckedChangeListener(onSwitchClickListener);
-      //  activityObjectBinding.alarmView.setOnClickListener(onClickAlarmViewListener);
+        //activityObjectBinding.turnOnAlarm.setOnCheckedChangeListener(onSwitchClickListener);
+        //  activityObjectBinding.alarmView.setOnClickListener(onClickAlarmViewListener);
         activityObjectBinding.toolbar.getMenu().findItem(R.id.action_save).setOnMenuItemClickListener(onMenuItemSaveClickListener);
+        activityObjectBinding.toolbar.getMenu().findItem(R.id.action_delete).setOnMenuItemClickListener(onMenuItemDeleteClickListener);
         activityObjectBinding.btnChangePhoto.setOnClickListener(onClickChangePhotoListener);
     }
 
@@ -176,21 +187,26 @@ public class ObjectActivity extends AppCompatActivity {
 
     private void save(boolean connection) {
         final String id_object = getIntent().getStringExtra("id_object");
-        if(id_object == null) {
-            objects = new Objects();
+        if (id_object == null) {
+            object = new Objects();
         }
-        objects.setNameObject(activityObjectBinding.itemName.getText().toString());
-        objects.setLocation(activityObjectBinding.itemLocation.getText().toString(), new Date());
-        objects.setUser(ParseUser.getCurrentUser());
+        object.setNameObject(activityObjectBinding.itemName.getText().toString());
+        object.setLocation(activityObjectBinding.itemLocation.getText().toString(), new Date());
+        object.setUser(ParseUser.getCurrentUser());
         if ((photo != null) && connection) {
-            objects.setImageObject(photo);
+            File file = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", id_object + ".png");
+            file.delete();
+            object.setImageObject(photo);
         }
-        objects.saveEventually(new SaveCallback() {
+        object.saveEventually(new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                if(e == null) {
-                    File file = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", id_object + ".png");
-                    file.delete();
+                if (e == null) {
+                    try {
+                        object.pin();
+                    } catch (ParseException er) {
+                        er.printStackTrace();
+                    }
                 }
             }
         });
@@ -241,5 +257,26 @@ public class ObjectActivity extends AppCompatActivity {
             }
         });
         queue.add(stringRequest);
+    }
+
+    private void createDialogDeleteObject() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(ObjectActivity.this);
+        builder.setMessage("Você deseja apagar o objeto?");
+        builder.setCancelable(true);
+        builder.setPositiveButton("Sim",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        object.deleteEventually();
+                        finish();
+                    }
+                });
+        builder.setNegativeButton("Não",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 }
