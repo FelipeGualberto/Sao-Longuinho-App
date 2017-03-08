@@ -29,6 +29,7 @@ import com.org.saolonguinho.R;
 import com.org.saolonguinho.databinding.ActivityObjectBinding;
 import com.org.saolonguinho.login.LoginActivity;
 import com.org.saolonguinho.shared.models.Objects;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -170,7 +171,7 @@ public class ObjectActivity extends AppCompatActivity {
 
     private void configureTriggers() {
         //activityObjectBinding.turnOnAlarm.setOnCheckedChangeListener(onSwitchClickListener);
-        //  activityObjectBinding.alarmView.setOnClickListener(onClickAlarmViewListener);
+        //activityObjectBinding.alarmView.setOnClickListener(onClickAlarmViewListener);
         activityObjectBinding.toolbar.getMenu().findItem(R.id.action_save).setOnMenuItemClickListener(onMenuItemSaveClickListener);
         activityObjectBinding.toolbar.getMenu().findItem(R.id.action_delete).setOnMenuItemClickListener(onMenuItemDeleteClickListener);
         activityObjectBinding.btnChangePhoto.setOnClickListener(onClickChangePhotoListener);
@@ -190,28 +191,45 @@ public class ObjectActivity extends AppCompatActivity {
         if (id_object == null) {
             object = new Objects();
         }
-        object.setNameObject(activityObjectBinding.itemName.getText().toString());
-        object.setLocation(activityObjectBinding.itemLocation.getText().toString(), new Date());
-        object.setUser(ParseUser.getCurrentUser());
-        if ((photo != null) && connection) {
-            File file = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", id_object + ".png");
-            file.delete();
-            object.setImageObject(photo);
-        }
-        object.saveEventually(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    try {
-                        object.pin();
-                    } catch (ParseException er) {
-                        er.printStackTrace();
-                    }
+        String itemName = activityObjectBinding.itemName.getText().toString();
+        String itemLocation = activityObjectBinding.itemLocation.getText().toString();
+        Boolean saveImage = false;
+        if (!(itemName.equals("")) || (itemLocation.equals(""))) {
+            object.setNameObject(itemName);
+            object.setLocation(itemLocation, new Date());
+            object.setUser(ParseUser.getCurrentUser());
+            if ((photo != null) && connection) {
+                if (id_object != null) {
+                    File file = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", id_object + ".png");
+                    file.delete();
                 }
+                object.setImageObject(photo);
+                saveImage = true;
             }
-        });
-        progressDialog.dismiss();
-        finish();
+            final Boolean finalSaveImage = saveImage;
+            object.saveEventually(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e == null) {
+                        try {
+                            object.pin();
+                            if (finalSaveImage) {
+                                File file = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", object.getObjectId() + ".png");
+                                photo.renameTo(file);
+                            }
+                        } catch (ParseException er) {
+                            er.printStackTrace();
+                        }
+                    } else {
+                        problemToast();
+                    }
+                    progressDialog.dismiss();
+                    finish();
+                }
+            });
+        } else {
+            Toast.makeText(getApplicationContext(), "Por favor preencha todos os campos", Toast.LENGTH_LONG);
+        }
     }
 
     @Override
@@ -266,8 +284,23 @@ public class ObjectActivity extends AppCompatActivity {
         builder.setPositiveButton("Sim",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        object.deleteEventually();
-                        finish();
+                        progressDialog.show();
+                        object.getLocation().deleteEventually(new DeleteCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                object.deleteEventually(new DeleteCallback() {
+                                    @Override
+                                    public void done(ParseException e) {
+                                        if (e == null) {
+                                            progressDialog.dismiss();
+                                            finish();
+                                        } else {
+                                            problemToast();
+                                        }
+                                    }
+                                });
+                            }
+                        });
                     }
                 });
         builder.setNegativeButton("Não",
@@ -278,5 +311,9 @@ public class ObjectActivity extends AppCompatActivity {
                 });
         AlertDialog alert = builder.create();
         alert.show();
+    }
+
+    private void problemToast() {
+        Toast.makeText(getApplicationContext(), "Ocorreu um erro, por favor tente  novamente", Toast.LENGTH_LONG).show();
     }
 }

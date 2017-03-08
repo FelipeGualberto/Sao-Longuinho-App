@@ -34,12 +34,13 @@ public class ListObjectsFragment extends Fragment {
     private RecyclerView rv;
     private ProgressDialog progressDialog;
     private Boolean isVerified = false;
-    private Boolean forceUpdate = false;
+    private Boolean forceUpdate = true;
+    ListObjectsAdapter listObjectsAdapter;
     View.OnClickListener onClickFloatingListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             ListObjectsAdapter adapter = (ListObjectsAdapter) rv.getAdapter();
-            if(adapter.getItemCount() < 14) {
+            if (adapter.getItemCount() < 14) {
                 if ((!isVerified) && (adapter.getItemCount() > 2)) {
                     Toast.makeText(getContext(), "Por favor verifique seu email para poder continuar adicionando mais itens (Reinicie a aplicação já tenha feito!)", Toast.LENGTH_LONG).show();
                     Handler handler = new Handler();
@@ -52,7 +53,7 @@ public class ListObjectsFragment extends Fragment {
                 } else {
                     startActivity(ObjectActivity.createIntent(getContext(), null));
                 }
-            }else{
+            } else {
                 Toast.makeText(getContext(), "Estamos muito felizes por você está usando bastante o aplicativo!", Toast.LENGTH_LONG).show();
                 createThanksDialog();
             }
@@ -67,6 +68,7 @@ public class ListObjectsFragment extends Fragment {
         floatingActionButton.setOnClickListener(onClickFloatingListener);
         rv = (RecyclerView) view.findViewById(R.id.rv);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
+        rv.getRecycledViewPool().setMaxRecycledViews(0,0);
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setTitle(R.string.loading);
         progressDialog.setCancelable(false);
@@ -114,7 +116,7 @@ public class ListObjectsFragment extends Fragment {
             @Override
             public void done(List<Objects> list, ParseException e) {
                 if (e == null) {
-                    ListObjectsAdapter listObjectsAdapter = new ListObjectsAdapter(list);
+                    listObjectsAdapter = new ListObjectsAdapter(list);
                     rv.setAdapter(listObjectsAdapter);
                     rv.getAdapter().notifyDataSetChanged();
                     progressDialog.dismiss();
@@ -133,7 +135,7 @@ public class ListObjectsFragment extends Fragment {
             @Override
             public void done(List<Objects> list, ParseException e) {
                 if (e == null) {
-                    ListObjectsAdapter listObjectsAdapter = new ListObjectsAdapter(list);
+                    listObjectsAdapter = new ListObjectsAdapter(list);
                     rv.setAdapter(listObjectsAdapter);
                     rv.getAdapter().notifyDataSetChanged();
                     progressDialog.dismiss();
@@ -157,12 +159,12 @@ public class ListObjectsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if(forceUpdate) {
+        if (forceUpdate) {
             loadItens();
             updateDataFromServer();
-        }
-        else{
-            forceUpdate = true;
+        } else {
+            loadItens();
+            forceUpdate = false;
         }
         verifyEmailStatus();
     }
@@ -208,7 +210,7 @@ public class ListObjectsFragment extends Fragment {
 
     private void createDialogSendEmailConfirmAgain() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setMessage("Você deseja enviar outro email de confirmação?");
+        builder.setMessage("Você deseja enviar outro email de confirmação para "+ ParseUser.getCurrentUser().getEmail() +"?");
         builder.setCancelable(true);
         builder.setPositiveButton("Sim",
                 new DialogInterface.OnClickListener() {

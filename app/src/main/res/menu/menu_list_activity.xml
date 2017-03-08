@@ -4,7 +4,7 @@
     <item android:id="@+id/action_search" android:title="Procurar"
           android:icon="@drawable/ic_search_black_24dp"
           android:orderInCategory="2" app:showAsAction="ifRoom" />
-    <item android:id="@+id/action_update" android:title="Atualizar"
+  <!--  <item android:id="@+id/action_update" android:title="Atualizar"
           android:icon="@drawable/ic_update_black_24dp"
-          android:orderInCategory="1" app:showAsAction="ifRoom" />
+          android:orderInCategory="1" app:showAsAction="ifRoom" />-->
 </menu>

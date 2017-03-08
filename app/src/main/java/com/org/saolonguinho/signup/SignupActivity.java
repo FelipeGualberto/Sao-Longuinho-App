@@ -56,36 +56,7 @@ public class SignupActivity extends AppCompatActivity {
     View.OnClickListener onClickSignup = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            String email = activitySignupBinding.emailText.getText().toString();
-            String password = activitySignupBinding.passwordText.getText().toString();
-            String password_again = activitySignupBinding.passwordConfirmText.getText().toString();
-            if (isValidEmail(email) && password.equals(password_again)) {
-                if (activitySignupBinding.passwordText.getText().toString().length() >= 5) {
-                    ParseUser user = new ParseUser();
-                    user.setUsername(email);
-                    user.setPassword(password);
-                    user.setEmail(email);
-                    user.signUpInBackground(new SignUpCallback() {
-                        public void done(ParseException e) {
-                            if (e == null) {
-                                startSaoLonguinho();
-                                // Hooray! Let them use the app now.
-                            } else {
-                                problemToast();
-                                activitySignupBinding.emailText.setText("");
-                                activitySignupBinding.passwordText.setText("");
-                                activitySignupBinding.passwordConfirmText.setText("");
-                                // Sign up didn't succeed. Look at the ParseException
-                                // to figure out what went wrong
-                            }
-                        }
-                    });
-                } else {
-                    Toast.makeText(getApplicationContext(), "Por favor digite uma senha maior que 5 dígitos", Toast.LENGTH_LONG).show();
-                }
-            } else {
-                Toast.makeText(getApplicationContext(), "Verifique seu email e senha", Toast.LENGTH_LONG).show();
-            }
+            emailIsCorrect();
         }
     };
 
@@ -103,4 +74,55 @@ public class SignupActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), "Um problema ocorreu, por favor tente novamente", Toast.LENGTH_LONG).show();
     }
 
+    private void emailIsCorrect() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(SignupActivity.this);
+        builder.setMessage("O email: " + activitySignupBinding.emailText.getText() + " está correto?");
+        builder.setCancelable(true);
+        builder.setPositiveButton("Sim",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        String email = activitySignupBinding.emailText.getText().toString();
+                        String password = activitySignupBinding.passwordText.getText().toString();
+                        String password_again = activitySignupBinding.passwordConfirmText.getText().toString();
+                        if (isValidEmail(email) && password.equals(password_again)) {
+                            if (activitySignupBinding.passwordText.getText().toString().length() >= 5) {
+                                ParseUser user = new ParseUser();
+                                user.setUsername(email);
+                                user.setPassword(password);
+                                user.setEmail(email);
+                                user.signUpInBackground(new SignUpCallback() {
+                                    public void done(ParseException e) {
+                                        if (e == null) {
+                                            startSaoLonguinho();
+                                            // Hooray! Let them use the app now.
+                                        } else {
+                                            if (e.getCode() == ParseException.EMAIL_TAKEN || e.getCode() == ParseException.USERNAME_TAKEN) {
+                                                Toast.makeText(getApplicationContext(), "Usuário já existe (Recupere sua senha em ''Esqueci a senha'')", Toast.LENGTH_LONG).show();
+                                            }
+                                            problemToast();
+                                            activitySignupBinding.emailText.setText("");
+                                            activitySignupBinding.passwordText.setText("");
+                                            activitySignupBinding.passwordConfirmText.setText("");
+                                            // Sign up didn't succeed. Look at the ParseException
+                                            // to figure out what went wrong
+                                        }
+                                    }
+                                });
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Por favor digite uma senha maior que 5 dígitos", Toast.LENGTH_LONG).show();
+                            }
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Verifique seu email e senha", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+        builder.setNegativeButton("Não",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
 }

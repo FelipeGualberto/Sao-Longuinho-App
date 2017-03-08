@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.facebook.login.LoginManager;
 import com.org.saolonguinho.MainActivity;
 import com.org.saolonguinho.R;
 import com.org.saolonguinho.about.AboutActivity;
@@ -43,6 +44,7 @@ public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding activityLoginBinding;
     final List<String> permissions = Arrays.asList("public_profile", "email");
     ProgressDialog progressDialog;
+
     public static Intent createIntent(Context context) {
         Intent intent = new Intent(context, LoginActivity.class);
         return intent;
@@ -59,9 +61,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void isFirstTime() {
-        SharedPreferences sharedPref =  LoginActivity.this.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = LoginActivity.this.getPreferences(Context.MODE_PRIVATE);
         boolean firstTime = sharedPref.getBoolean("firstTime", true);
-        if(firstTime) {
+        if (firstTime) {
             startActivity(HelpActivity.createIntent(getApplicationContext()));
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putBoolean("firstTime", false);
@@ -93,6 +95,7 @@ public class LoginActivity extends AppCompatActivity {
                         startSaoLonguinho();
                     } else {
                         Toast.makeText(getApplicationContext(), "Usuário ou senha errados", Toast.LENGTH_LONG).show();
+                        progressDialog.dismiss();
                     }
                 }
             });
@@ -108,11 +111,13 @@ public class LoginActivity extends AppCompatActivity {
     View.OnClickListener OnClickFacebookListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            progressDialog.show();
             ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this, permissions, new LogInCallback() {
                 @Override
                 public void done(ParseUser user, ParseException err) {
                     if (user == null) {
                         Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
+                        getUserDetailFromFB();
                     } else if (user.isNew()) {
                         Log.d("MyApp", "User signed up and logged in through Facebook!");
                         getUserDetailFromFB();
@@ -141,8 +146,10 @@ public class LoginActivity extends AppCompatActivity {
                     email = object.getString("email");
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    LoginManager.getInstance().logOut();
                     isOk = false;
                     problemToast();
+                    progressDialog.dismiss();
                 }
                 if (isOk) {
                     saveNewUser(email);
@@ -163,9 +170,11 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void done(ParseException e) {
                 if (e == null) {
+                    progressDialog.dismiss();
                     startSaoLonguinho();
                 } else {
                     problemToast();
+                    progressDialog.dismiss();
                 }
             }
         });
@@ -178,7 +187,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     void problemToast() {
-        Toast.makeText(getApplicationContext(), "Um problema ocorreu, por favor tente novamente. (Verifique se escreveu o email corretamente)", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Um problema ocorreu, por favor tente novamente.", Toast.LENGTH_LONG).show();
     }
 
     private void createDialogSendResetEmail() {
@@ -194,7 +203,7 @@ public class LoginActivity extends AppCompatActivity {
                                         if (e == null) {
                                             Toast.makeText(getApplicationContext(), "Um email foi enviado para você!", Toast.LENGTH_LONG).show();
                                         } else {
-                                            problemToast();
+                                            Toast.makeText(getApplicationContext(), "Um problema ocorreu, por favor tente novamente. (Verifique se escreveu o email corretamente)", Toast.LENGTH_LONG).show();
                                         }
                                     }
                                 });

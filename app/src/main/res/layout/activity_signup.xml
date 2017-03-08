@@ -60,7 +60,7 @@
                     android:hint="Senha"
                     android:paddingLeft="3dp"
                     android:textColorLink="#FAFAFA"
-                    android:inputType="textVisiblePassword"/>
+                    android:inputType="textPassword"/>
                 <EditText
                     android:id="@+id/passwordConfirmText"
                     android:layout_width="fill_parent"
@@ -73,7 +73,7 @@
                     android:hint="Confirme a Senha"
                     android:paddingLeft="3dp"
                     android:textColorLink="#FAFAFA"
-                    android:inputType="textVisiblePassword"/>
+                    android:inputType="textPassword"/>
 
                 <Button
                     android:id="@+id/buttonSignup"
