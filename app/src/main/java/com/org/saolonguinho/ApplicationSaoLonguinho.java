@@ -8,6 +8,8 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
 import com.facebook.FacebookSdk;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.org.saolonguinho.login.LoginActivity;
 import com.org.saolonguinho.shared.models.Location;
 import com.org.saolonguinho.shared.models.Objects;
@@ -41,5 +43,6 @@ public class ApplicationSaoLonguinho extends Application {
 
         FacebookSdk.sdkInitialize(getApplicationContext());
         ParseFacebookUtils.initialize(this);
+        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(getApplicationContext()));
     }
 }

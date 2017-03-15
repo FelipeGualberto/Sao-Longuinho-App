@@ -86,13 +86,19 @@ public class ObjectActivity extends AppCompatActivity {
     MenuItem.OnMenuItemClickListener onMenuItemSaveClickListener = new MenuItem.OnMenuItemClickListener() {
         @Override
         public boolean onMenuItemClick(MenuItem item) {
-            progressDialog.show();
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    testConnection();
-                }
-            }).start();
+            final String itemName = activityObjectBinding.itemName.getText().toString();
+            final String itemLocation = activityObjectBinding.itemLocation.getText().toString();
+            if (!(itemName.equals("")) && !(itemLocation.equals(""))) {
+                progressDialog.show();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        testConnection();
+                    }
+                }).start();
+            } else {
+                Toast.makeText(ObjectActivity.this, "Por favor preencha todos os campos", Toast.LENGTH_LONG).show();
+            }
             return true;
         }
     };
@@ -194,42 +200,37 @@ public class ObjectActivity extends AppCompatActivity {
         String itemName = activityObjectBinding.itemName.getText().toString();
         String itemLocation = activityObjectBinding.itemLocation.getText().toString();
         Boolean saveImage = false;
-        if (!(itemName.equals("")) || (itemLocation.equals(""))) {
-            object.setNameObject(itemName);
-            object.setLocation(itemLocation, new Date());
-            object.setUser(ParseUser.getCurrentUser());
-            if ((photo != null) && connection) {
-                if (id_object != null) {
-                    File file = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", id_object + ".png");
-                    file.delete();
-                }
-                object.setImageObject(photo);
-                saveImage = true;
+        object.setNameObject(itemName);
+        object.setLocation(itemLocation, new Date());
+        object.setUser(ParseUser.getCurrentUser());
+        if ((photo != null) && connection) {
+            if (id_object != null) {
+                File file = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", id_object + ".png");
+                file.delete();
             }
-            final Boolean finalSaveImage = saveImage;
-            object.saveEventually(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    if (e == null) {
-                        try {
-                            object.pin();
-                            if (finalSaveImage) {
-                                File file = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", object.getObjectId() + ".png");
-                                photo.renameTo(file);
-                            }
-                        } catch (ParseException er) {
-                            er.printStackTrace();
-                        }
-                    } else {
-                        problemToast();
-                    }
-                    progressDialog.dismiss();
-                    finish();
-                }
-            });
-        } else {
-            Toast.makeText(getApplicationContext(), "Por favor preencha todos os campos", Toast.LENGTH_LONG);
+            object.setImageObject(photo);
+            saveImage = true;
         }
+        final Boolean finalSaveImage = saveImage;
+        object.saveEventually(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    try {
+                        object.pin();
+                        if (finalSaveImage) {
+                            File file = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", object.getObjectId() + ".png");
+                            photo.renameTo(file);
+                        }
+                    } catch (ParseException er) {
+                        er.printStackTrace();
+                    }
+                } else {
+                    problemToast();
+                }
+                finish();
+            }
+        });
     }
 
     @Override
@@ -292,7 +293,6 @@ public class ObjectActivity extends AppCompatActivity {
                                     @Override
                                     public void done(ParseException e) {
                                         if (e == null) {
-                                            progressDialog.dismiss();
                                             finish();
                                         } else {
                                             problemToast();
@@ -315,5 +315,11 @@ public class ObjectActivity extends AppCompatActivity {
 
     private void problemToast() {
         Toast.makeText(getApplicationContext(), "Ocorreu um erro, por favor tente  novamente", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        progressDialog.dismiss();
+        super.onDestroy();
     }
 }

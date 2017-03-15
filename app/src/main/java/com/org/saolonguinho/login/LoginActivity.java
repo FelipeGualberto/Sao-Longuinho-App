@@ -218,4 +218,15 @@ public class LoginActivity extends AppCompatActivity {
         AlertDialog alert = builder.create();
         alert.show();
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        progressDialog.dismiss();
+        super.onDestroy();
+    }
 }

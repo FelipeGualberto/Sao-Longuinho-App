@@ -1,5 +1,6 @@
 package com.org.saolonguinho.signup;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,7 +23,7 @@ import com.parse.SignUpCallback;
 
 public class SignupActivity extends AppCompatActivity {
     private ActivitySignupBinding activitySignupBinding;
-
+    private ProgressDialog progressDialog;
     public static Intent createIntent(Context context) {
         Intent intent = new Intent(context, SignupActivity.class);
         return intent;
@@ -34,6 +35,7 @@ public class SignupActivity extends AppCompatActivity {
         activitySignupBinding = DataBindingUtil.setContentView(this, R.layout.activity_signup);
         setToolbar();
         setTriggers();
+        progressDialog = new ProgressDialog(SignupActivity.this);
     }
 
     private void setTriggers() {
@@ -86,6 +88,7 @@ public class SignupActivity extends AppCompatActivity {
                         String password_again = activitySignupBinding.passwordConfirmText.getText().toString();
                         if (isValidEmail(email) && password.equals(password_again)) {
                             if (activitySignupBinding.passwordText.getText().toString().length() >= 5) {
+                                progressDialog.show();
                                 ParseUser user = new ParseUser();
                                 user.setUsername(email);
                                 user.setPassword(password);
@@ -96,6 +99,7 @@ public class SignupActivity extends AppCompatActivity {
                                             startSaoLonguinho();
                                             // Hooray! Let them use the app now.
                                         } else {
+                                            progressDialog.dismiss();
                                             if (e.getCode() == ParseException.EMAIL_TAKEN || e.getCode() == ParseException.USERNAME_TAKEN) {
                                                 Toast.makeText(getApplicationContext(), "Usuário já existe (Recupere sua senha em ''Esqueci a senha'')", Toast.LENGTH_LONG).show();
                                             }
@@ -124,5 +128,11 @@ public class SignupActivity extends AppCompatActivity {
                 });
         AlertDialog alert = builder.create();
         alert.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        progressDialog.dismiss();
+        super.onDestroy();
     }
 }

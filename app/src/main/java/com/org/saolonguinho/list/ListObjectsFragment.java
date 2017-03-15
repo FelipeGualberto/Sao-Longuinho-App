@@ -68,7 +68,8 @@ public class ListObjectsFragment extends Fragment {
         floatingActionButton.setOnClickListener(onClickFloatingListener);
         rv = (RecyclerView) view.findViewById(R.id.rv);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
-        rv.getRecycledViewPool().setMaxRecycledViews(0,0);
+        //rv.getRecycledViewPool().setMaxRecycledViews(0, 0);
+        rv.getItemAnimator().setChangeDuration(0);
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setTitle(R.string.loading);
         progressDialog.setCancelable(false);
@@ -116,8 +117,12 @@ public class ListObjectsFragment extends Fragment {
             @Override
             public void done(List<Objects> list, ParseException e) {
                 if (e == null) {
-                    listObjectsAdapter = new ListObjectsAdapter(list);
-                    rv.setAdapter(listObjectsAdapter);
+                    if (listObjectsAdapter == null) {
+                        listObjectsAdapter = new ListObjectsAdapter(list);
+                        rv.setAdapter(listObjectsAdapter);
+                    } else {
+                        listObjectsAdapter.setDataset(list);
+                    }
                     rv.getAdapter().notifyDataSetChanged();
                     progressDialog.dismiss();
                 } else {
@@ -135,10 +140,13 @@ public class ListObjectsFragment extends Fragment {
             @Override
             public void done(List<Objects> list, ParseException e) {
                 if (e == null) {
-                    listObjectsAdapter = new ListObjectsAdapter(list);
-                    rv.setAdapter(listObjectsAdapter);
+                    if (listObjectsAdapter == null) {
+                        listObjectsAdapter = new ListObjectsAdapter(list);
+                        rv.setAdapter(listObjectsAdapter);
+                    } else {
+                        listObjectsAdapter.setDataset(list);
+                    }
                     rv.getAdapter().notifyDataSetChanged();
-                    progressDialog.dismiss();
                 } else {
                 }
             }
@@ -210,7 +218,7 @@ public class ListObjectsFragment extends Fragment {
 
     private void createDialogSendEmailConfirmAgain() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setMessage("Você deseja enviar outro email de confirmação para "+ ParseUser.getCurrentUser().getEmail() +"?");
+        builder.setMessage("Você deseja enviar outro email de confirmação para " + ParseUser.getCurrentUser().getEmail() + "?");
         builder.setCancelable(true);
         builder.setPositiveButton("Sim",
                 new DialogInterface.OnClickListener() {
