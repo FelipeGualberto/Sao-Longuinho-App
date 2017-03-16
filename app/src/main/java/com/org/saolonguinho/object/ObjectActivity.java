@@ -1,16 +1,22 @@
 package com.org.saolonguinho.object;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,18 +25,23 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.org.saolonguinho.ApplicationSaoLonguinho;
 import com.org.saolonguinho.R;
 import com.org.saolonguinho.databinding.ActivityObjectBinding;
 import com.org.saolonguinho.login.LoginActivity;
 import com.org.saolonguinho.shared.models.Objects;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -41,6 +52,7 @@ import java.util.Date;
 import java.util.List;
 
 public class ObjectActivity extends AppCompatActivity {
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL = 3;
     ActivityObjectBinding activityObjectBinding;
     ProgressDialog progressDialog;
 
@@ -49,6 +61,8 @@ public class ObjectActivity extends AppCompatActivity {
 
     private static final int TAKE_PICTURE = 1;
     private Uri imageUri;
+
+    public static RequestQueue queue = Volley.newRequestQueue(ApplicationSaoLonguinho.getAppContext());
 
     public static Intent createIntent(Context context, String id) {
         Intent intent = new Intent(context, ObjectActivity.class);
@@ -128,6 +142,7 @@ public class ObjectActivity extends AppCompatActivity {
         activityObjectBinding = DataBindingUtil.setContentView(this, R.layout.activity_object);
         progressDialog = new ProgressDialog(ObjectActivity.this);
         progressDialog.setTitle(R.string.loading);
+        progressDialog.setMessage("Isso pode demorar um pouco..");
         progressDialog.setCancelable(false);
         File directory = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho");
         if (!directory.exists()) {
@@ -154,9 +169,8 @@ public class ObjectActivity extends AppCompatActivity {
                         object = list.get(0);
                         activityObjectBinding.itemName.setText(list.get(0).getNameObject());
                         activityObjectBinding.itemLocation.setText(list.get(0).getLocation().getDescription());
-                        File file = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", id_object + ".png");
-                        Bitmap bitImage = BitmapFactory.decodeFile(file.getAbsolutePath());
-                        activityObjectBinding.ivPhoto.setImageBitmap(bitImage);
+                        ImageLoader imageLoader = ImageLoader.getInstance();
+                        imageLoader.displayImage("file://" + Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho" + File.separator + id_object + ".png", activityObjectBinding.ivPhoto);
                     } catch (Exception er) {
                     }
                 } else {
@@ -184,12 +198,31 @@ public class ObjectActivity extends AppCompatActivity {
     }
 
     public void takePhoto() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         photo = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", "temp.jpg");
+        Uri uri = FileProvider.getUriForFile(getApplicationContext(), "com.org.saolonguinho", photo);
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intent.putExtra(MediaStore.EXTRA_OUTPUT,
-                Uri.fromFile(photo));
-        imageUri = Uri.fromFile(photo);
-        startActivityForResult(intent, TAKE_PICTURE);
+                uri);
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            startActivityForResult(intent, TAKE_PICTURE);
+        } else {
+            requestPermission();
+        }
+      /*  photo = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", "temp.jpg");
+        Intent photoPickerIntent =  new Intent("android.media.action.IMAGE_CAPTURE");
+        photoPickerIntent.putExtra("crop", "true");
+        photoPickerIntent.putExtra("outputX", 300);
+        photoPickerIntent.putExtra("outputY", 300);
+        photoPickerIntent.putExtra("aspectX", 1);
+        photoPickerIntent.putExtra("aspectY", 1);
+        photoPickerIntent.putExtra("scale", true);
+        photoPickerIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+                          Uri.fromFile(photo));
+        photoPickerIntent.putExtra("outputFormat",
+                Bitmap.CompressFormat.JPEG.toString());
+        startActivityForResult(photoPickerIntent, TAKE_PICTURE); */
     }
 
     private void save(boolean connection) {
@@ -239,8 +272,8 @@ public class ObjectActivity extends AppCompatActivity {
         switch (requestCode) {
             case TAKE_PICTURE:
                 if (resultCode == Activity.RESULT_OK) {
-                    Bitmap bitImage = BitmapFactory.decodeFile(photo.getAbsolutePath());
-                    activityObjectBinding.ivPhoto.setImageBitmap(bitImage);
+                    ImageLoader imageLoader = ImageLoader.getInstance();
+                    imageLoader.displayImage("file://" + photo.getAbsolutePath(), activityObjectBinding.ivPhoto);
                 }
                 if (resultCode == Activity.RESULT_CANCELED) {
                     photo.delete();
@@ -255,8 +288,7 @@ public class ObjectActivity extends AppCompatActivity {
     }
 
     private void testConnection() {
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url = "https://www.back4app.com/";
+        String url = "https://www.google.com.br/";
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
@@ -275,6 +307,9 @@ public class ObjectActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Sem rede, tente enviar a foto posteriormente", Toast.LENGTH_LONG).show();
             }
         });
+        int socketTimeout = 4000;//4 seconds
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, 1, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        stringRequest.setRetryPolicy(policy);
         queue.add(stringRequest);
     }
 
@@ -314,12 +349,38 @@ public class ObjectActivity extends AppCompatActivity {
     }
 
     private void problemToast() {
-        Toast.makeText(getApplicationContext(), "Ocorreu um erro, por favor tente  novamente", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Ocorreu um erro, por favor tente novamente", Toast.LENGTH_LONG).show();
+    }
+
+    private void requestPermission() {
+        ActivityCompat.requestPermissions(ObjectActivity.this,
+                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL);
     }
 
     @Override
     protected void onDestroy() {
         progressDialog.dismiss();
         super.onDestroy();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    takePhoto();
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
     }
 }

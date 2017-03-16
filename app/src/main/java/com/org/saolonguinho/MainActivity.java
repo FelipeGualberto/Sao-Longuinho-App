@@ -1,5 +1,6 @@
 package com.org.saolonguinho;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,6 +11,8 @@ import android.content.pm.Signature;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -31,6 +34,7 @@ import com.org.saolonguinho.help.HelpActivity;
 import com.org.saolonguinho.list.ListObjectsAdapter;
 import com.org.saolonguinho.list.ListObjectsFragment;
 import com.org.saolonguinho.login.LoginActivity;
+import com.org.saolonguinho.object.ObjectActivity;
 import com.org.saolonguinho.shared.models.Objects;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
@@ -47,6 +51,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private static final int MY_PERMISSIONS_REQUEST = 5;
     private ActivityMainBinding activityMainBinding;
     private InterfaceMain interfaceMain;
 
@@ -182,6 +187,13 @@ public class MainActivity extends AppCompatActivity {
     private void setFragment() {
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.frm_lyt_container, new ListObjectsFragment()).commit();
+        int permissionCheckWriteExternal = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int permissionCheckInternet = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.INTERNET);
+        if (permissionCheckWriteExternal == PackageManager.PERMISSION_DENIED || permissionCheckInternet == PackageManager.PERMISSION_DENIED) {
+            requestPermission();
+        }
     }
 
     private void createDialogLogout() {
@@ -275,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void done(List<Objects> list, ParseException e) {
                 if (e == null) {
-                    for(int i = 0; i < list.size(); i++){
+                    for (int i = 0; i < list.size(); i++) {
                         list.get(i).deleteEventually();
                         list.get(i).getLocation().deleteEventually();
                     }
@@ -287,5 +299,31 @@ public class MainActivity extends AppCompatActivity {
 
     public void setInterface(InterfaceMain interface_main) {
         interfaceMain = interface_main;
+    }
+
+    private void requestPermission() {
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET},
+                MY_PERMISSIONS_REQUEST);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    interfaceMain.update();
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
     }
 }

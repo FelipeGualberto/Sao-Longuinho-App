@@ -1,6 +1,7 @@
 package com.org.saolonguinho;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -29,6 +30,7 @@ import java.util.Date;
  */
 
 public class ApplicationSaoLonguinho extends Application {
+    private static Context context;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -44,5 +46,10 @@ public class ApplicationSaoLonguinho extends Application {
         FacebookSdk.sdkInitialize(getApplicationContext());
         ParseFacebookUtils.initialize(this);
         ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(getApplicationContext()));
+        context = getApplicationContext();
+
+    }
+    public static Context getAppContext() {
+        return ApplicationSaoLonguinho.context;
     }
 }

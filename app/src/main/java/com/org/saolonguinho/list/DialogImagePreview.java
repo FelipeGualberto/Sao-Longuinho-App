@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TimePicker;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.org.saolonguinho.R;
 
 import java.io.File;
@@ -46,9 +47,9 @@ public class DialogImagePreview extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_dialog_preview_image, container, false);
         String id_object = getArguments().getString("Id");
-        File file = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", id_object + ".png");
-        Bitmap bitImage = BitmapFactory.decodeFile(file.getAbsolutePath());
-        ((ImageView) view.findViewById(R.id.image_preview)).setImageBitmap(bitImage);
+        ImageView imageView = ((ImageView) view.findViewById(R.id.image_preview));
+        ImageLoader imageLoader = ImageLoader.getInstance();
+        imageLoader.displayImage("file://" + Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho" + File.separator + id_object + ".png", imageView);
         return view;
     }
 }
