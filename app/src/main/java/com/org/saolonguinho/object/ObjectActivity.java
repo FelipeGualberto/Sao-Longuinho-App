@@ -48,6 +48,8 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -199,10 +201,9 @@ public class ObjectActivity extends AppCompatActivity {
 
     public void takePhoto() {
         photo = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", "temp.jpg");
-        Uri uri = FileProvider.getUriForFile(getApplicationContext(), "com.org.saolonguinho", photo);
+        //Uri uri = FileProvider.getUriForFile(getApplicationContext(), "com.org.saolonguinho", photo);
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT,
-                uri);
+        // intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
         int permissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
@@ -210,19 +211,6 @@ public class ObjectActivity extends AppCompatActivity {
         } else {
             requestPermission();
         }
-      /*  photo = new File(Environment.getExternalStorageDirectory() + File.separator + "SaoLonguinho", "temp.jpg");
-        Intent photoPickerIntent =  new Intent("android.media.action.IMAGE_CAPTURE");
-        photoPickerIntent.putExtra("crop", "true");
-        photoPickerIntent.putExtra("outputX", 300);
-        photoPickerIntent.putExtra("outputY", 300);
-        photoPickerIntent.putExtra("aspectX", 1);
-        photoPickerIntent.putExtra("aspectY", 1);
-        photoPickerIntent.putExtra("scale", true);
-        photoPickerIntent.putExtra(MediaStore.EXTRA_OUTPUT,
-                          Uri.fromFile(photo));
-        photoPickerIntent.putExtra("outputFormat",
-                Bitmap.CompressFormat.JPEG.toString());
-        startActivityForResult(photoPickerIntent, TAKE_PICTURE); */
     }
 
     private void save(boolean connection) {
@@ -269,14 +257,27 @@ public class ObjectActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        OutputStream outStream = null;
         switch (requestCode) {
             case TAKE_PICTURE:
                 if (resultCode == Activity.RESULT_OK) {
-                    ImageLoader imageLoader = ImageLoader.getInstance();
-                    imageLoader.displayImage("file://" + photo.getAbsolutePath(), activityObjectBinding.ivPhoto);
+                    Bundle extras = data.getExtras();
+                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+                    //  ImageLoader imageLoader = ImageLoader.getInstance();
+                    //  imageLoader.displayImage("file://" + photo.getAbsolutePath(), activityObjectBinding.ivPhoto);
+                    try {
+                        activityObjectBinding.ivPhoto.setImageBitmap(imageBitmap);
+                        outStream = new FileOutputStream(photo);
+                        imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
+                        outStream.flush();
+                        outStream.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        problemToast();
+                    }
                 }
                 if (resultCode == Activity.RESULT_CANCELED) {
-                    photo.delete();
+                    photo.delete(); // Deleta o arquivo vazio
                     photo = null;
                 }
                 break;
