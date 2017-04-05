@@ -30,5 +30,15 @@
         <item
             android:id="@+id/mn_delete"
             android:title="Deletar Conta"/>
+
+    </group>
+    <group android:enabled="true" android:visible="true">
+        <item android:id="@+id/mn_ads" android:title="  ">
+
+        </item>
+
+        <item android:id="@+id/mn_ads_privacy" android:title="AppNext" android:icon="@drawable/privacy_appnext">
+
+        </item>
     </group>
 </menu>

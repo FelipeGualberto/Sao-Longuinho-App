@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.appnext.appnextsdk.API.AppnextAPI;
 import com.org.saolonguinho.MainActivity;
 import com.org.saolonguinho.R;
 import com.org.saolonguinho.object.ObjectActivity;
@@ -40,22 +41,17 @@ public class ListObjectsFragment extends Fragment {
         @Override
         public void onClick(View v) {
             ListObjectsAdapter adapter = (ListObjectsAdapter) rv.getAdapter();
-            if (adapter.getItemCount() < 14) {
-                if ((!isVerified) && (adapter.getItemCount() > 2)) {
-                    Toast.makeText(getContext(), "Por favor verifique seu email para poder continuar adicionando mais itens (Reinicie a aplicação já tenha feito!)", Toast.LENGTH_LONG).show();
-                    Handler handler = new Handler();
-                    Runnable r = new Runnable() {
-                        public void run() {
-                            createDialogSendEmailConfirmAgain();
-                        }
-                    };
-                    handler.postDelayed(r, 2000);
-                } else {
-                    startActivity(ObjectActivity.createIntent(getContext(), null));
-                }
+            if ((!isVerified) && (adapter.getItemCount() > 2)) {
+                Toast.makeText(getContext(), "Por favor verifique seu email para poder continuar adicionando mais itens (Reinicie a aplicação já tenha feito!)", Toast.LENGTH_LONG).show();
+                Handler handler = new Handler();
+                Runnable r = new Runnable() {
+                    public void run() {
+                        createDialogSendEmailConfirmAgain();
+                    }
+                };
+                handler.postDelayed(r, 2000);
             } else {
-                Toast.makeText(getContext(), "Estamos muito felizes por você está usando bastante o aplicativo!", Toast.LENGTH_LONG).show();
-                createThanksDialog();
+                startActivity(ObjectActivity.createIntent(getContext(), null));
             }
         }
     };
@@ -218,7 +214,7 @@ public class ListObjectsFragment extends Fragment {
 
     private void createDialogSendEmailConfirmAgain() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setMessage("Você deseja enviar outro email de confirmação para " + ParseUser.getCurrentUser().getEmail() + "?");
+        builder.setMessage("Por favor verifique seu email para poder continuar adicionando mais itens! Você deseja enviar outro email de confirmação para " + ParseUser.getCurrentUser().getEmail() + "?");
         builder.setCancelable(true);
         builder.setPositiveButton("Sim",
                 new DialogInterface.OnClickListener() {

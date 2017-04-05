@@ -60,11 +60,13 @@
 
                 <ImageButton
                     android:id="@+id/sharebtn"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
                     android:layout_gravity="right"
                     android:layout_weight="1"
                     android:background="@null"
+                    android:layout_marginRight="4dp"
+
                     android:scaleType="centerInside"
                     android:src="@drawable/share"/>
             </LinearLayout>

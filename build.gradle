@@ -15,8 +15,10 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        maven { url "http://repo.appnext.com/" }
         mavenCentral()
-        mavenLocal() // When you forget this, the library will not be found
+        mavenLocal()
+
     }
 }
 

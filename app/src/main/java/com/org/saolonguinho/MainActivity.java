@@ -5,10 +5,9 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.databinding.DataBindingUtil;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -20,32 +19,31 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Base64;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import com.appnext.ads.interstitial.Interstitial;
+import com.appnext.appnextsdk.API.AppnextAPI;
+import com.appnext.appnextsdk.API.AppnextAd;
+import com.appnext.appnextsdk.API.AppnextAdRequest;
+
+import com.appnext.core.callbacks.OnAdLoaded;
 import com.facebook.login.LoginManager;
 import com.org.saolonguinho.about.AboutActivity;
 import com.org.saolonguinho.databinding.ActivityMainBinding;
 import com.org.saolonguinho.help.HelpActivity;
-import com.org.saolonguinho.list.ListObjectsAdapter;
 import com.org.saolonguinho.list.ListObjectsFragment;
 import com.org.saolonguinho.login.LoginActivity;
-import com.org.saolonguinho.object.ObjectActivity;
 import com.org.saolonguinho.shared.models.Objects;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
-import com.parse.ParseFacebookUtils;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -54,6 +52,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST = 5;
     private ActivityMainBinding activityMainBinding;
     private InterfaceMain interfaceMain;
+
+    Interstitial interstitial_Ad;
+    private AppnextAPI appnextAPI;
+    private AppnextAd ad;
 
     public static Intent createIntent(Context context) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -84,6 +86,8 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         } else {
             setFragment();
+            startSimpleAds();
+            startInteristialAds();
         }
     }
 
@@ -322,8 +326,63 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return;
             }
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
+    }
+
+    private void startSimpleAds() {
+        //Interstitial interstitial_Ad = new Interstitial(this, ADD_HERE_YOUR_PLACEMENT_ID);
+        appnextAPI = new AppnextAPI(this, getString(R.string.placement_id));
+        appnextAPI.setAdListener(new AppnextAPI.AppnextAdListener() {
+            @Override
+            public void onAdsLoaded(ArrayList<AppnextAd> arrayList) {
+                ad = arrayList.get(0);
+                activityMainBinding.nvgtVw.getMenu().findItem(R.id.mn_ads).setTitle(ad.getAdTitle());
+                activityMainBinding.nvgtVw.getMenu().findItem(R.id.mn_ads).setIcon(R.drawable.ic_ads);
+                activityMainBinding.nvgtVw.getMenu().findItem(R.id.mn_ads).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        appnextAPI.adClicked(ad);
+                        appnextAPI.adImpression(ad);
+                        return false;
+                    }
+                });
+                activityMainBinding.nvgtVw.getMenu().findItem(R.id.mn_ads_privacy).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        appnextAPI.privacyClicked(ad);
+                        return false;
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String s) {
+            }
+        });
+        appnextAPI.setCreativeType(AppnextAPI.TYPE_MANAGED);
+        appnextAPI.loadAds(new AppnextAdRequest());
+    }
+
+    private void startInteristialAds() {
+        interstitial_Ad = new Interstitial(this, getString(R.string.placement_id));
+        interstitial_Ad.loadAd();
+        interstitial_Ad.setOnAdLoadedCallback(new OnAdLoaded() {
+            @Override
+            public void adLoaded() {
+                Handler handler = new Handler();
+                Runnable r = new Runnable() {
+                    public void run() {
+                        interstitial_Ad.showAd();
+                    }
+                };
+                handler.postDelayed(r, 10000);
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        appnextAPI.finish();
     }
 }

@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -29,8 +30,6 @@ import com.org.saolonguinho.R;
 import com.org.saolonguinho.databinding.ItemBinding;
 import com.org.saolonguinho.object.ObjectActivity;
 import com.org.saolonguinho.shared.models.Objects;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -66,6 +65,7 @@ public class ListObjectsAdapter extends RecyclerView.Adapter<ListObjectsAdapter.
                     sendIntent.putExtra(Intent.EXTRA_TEXT, "Localização do objeto " + name + ": " + location + " - São Longuinho App");
                     sendIntent.setType("text/plain");
                     v.getContext().startActivity(sendIntent);
+                    Toast.makeText(itemBinding.getRoot().getContext(),"Carregando...",Toast.LENGTH_LONG).show();
                 }
             });
             itemBinding.objectImage.setOnClickListener(new View.OnClickListener() {
