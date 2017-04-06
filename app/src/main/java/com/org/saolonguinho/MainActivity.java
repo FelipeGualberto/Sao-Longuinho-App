@@ -56,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
     Interstitial interstitial_Ad;
     private AppnextAPI appnextAPI;
     private AppnextAd ad;
+    private int interstitial_Ad_time = 0;
+    private boolean isActivityVisible = true;
 
     public static Intent createIntent(Context context) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -87,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             setFragment();
             startSimpleAds();
-            startInteristialAds();
         }
     }
 
@@ -330,7 +331,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startSimpleAds() {
-        //Interstitial interstitial_Ad = new Interstitial(this, ADD_HERE_YOUR_PLACEMENT_ID);
         appnextAPI = new AppnextAPI(this, getString(R.string.placement_id));
         appnextAPI.setAdListener(new AppnextAPI.AppnextAdListener() {
             @Override
@@ -364,25 +364,52 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startInteristialAds() {
-        interstitial_Ad = new Interstitial(this, getString(R.string.placement_id));
-        interstitial_Ad.loadAd();
-        interstitial_Ad.setOnAdLoadedCallback(new OnAdLoaded() {
-            @Override
-            public void adLoaded() {
-                Handler handler = new Handler();
-                Runnable r = new Runnable() {
-                    public void run() {
-                        interstitial_Ad.showAd();
-                    }
-                };
-                handler.postDelayed(r, 10000);
-            }
-        });
+        if(interstitial_Ad == null) {
+            interstitial_Ad = new Interstitial(this, getString(R.string.placement_id));
+            interstitial_Ad.loadAd();
+            interstitial_Ad.setBackButtonCanClose(true);
+            interstitial_Ad.setSkipText(getString(R.string.skip_ads));
+            interstitial_Ad.setOnAdLoadedCallback(new OnAdLoaded() {
+                @Override
+                public void adLoaded() {
+                    Handler handler = new Handler();
+                    Runnable r = new Runnable() {
+                        public void run() {
+                            if(isActivityVisible) {
+                                interstitial_Ad.showAd();
+                            }
+                        }
+                    };
+                    handler.postDelayed(r, 5000);
+                }
+            });
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        appnextAPI.finish();
+        if (appnextAPI != null) {
+            appnextAPI.finish();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isActivityVisible = true;
+        if(interstitial_Ad_time < 3) {
+            interstitial_Ad_time++;
+        }else{
+            startInteristialAds();
+        }
+    }
+
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isActivityVisible = false;
     }
 }
