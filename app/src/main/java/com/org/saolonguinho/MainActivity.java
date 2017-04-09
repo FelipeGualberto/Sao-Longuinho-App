@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.os.Handler;
@@ -22,6 +23,7 @@ import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.appnext.ads.interstitial.Interstitial;
@@ -80,13 +82,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         configureToolbar();
-        configureNavigation();
         setTriggers();
         if (ParseUser.getCurrentUser() == null) {
             Intent intent = LoginActivity.createIntent(getApplicationContext());
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
         } else {
+            configureNavigation();
             setFragment();
             startSimpleAds();
         }
@@ -187,6 +189,8 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+        TextView user_email = (TextView) activityMainBinding.nvgtVw.getHeaderView(0).findViewById(R.id.user_email);
+        user_email.setText(ParseUser.getCurrentUser().getEmail());
     }
 
     private void setFragment() {
@@ -208,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton("Sim",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        deleteLocalSettings();
                         ParseUser.logOut();
                         Intent intent = LoginActivity.createIntent(getApplicationContext());
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -249,6 +254,7 @@ public class MainActivity extends AppCompatActivity {
                                             deleteItens();
                                         }
                                     }).start();
+                                    deleteLocalSettings();
                                     LoginManager.getInstance().logOut();
                                     progressDialog.dismiss();
                                     Toast.makeText(getApplicationContext(), "Conta deletada", Toast.LENGTH_LONG).show();
@@ -269,6 +275,11 @@ public class MainActivity extends AppCompatActivity {
                 });
         AlertDialog alert = builder.create();
         alert.show();
+    }
+
+    void deleteLocalSettings(){
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        sharedPref.edit().clear().apply();
     }
 
     @Override

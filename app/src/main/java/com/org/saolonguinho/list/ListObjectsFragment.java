@@ -25,6 +25,7 @@ import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -195,20 +196,27 @@ public class ListObjectsFragment extends Fragment {
         if (verified) {
             isVerified = verified;
         } else {
-            ParseUser.getCurrentUser().fetchInBackground(new GetCallback<ParseObject>() {
-                @Override
-                public void done(ParseObject object, ParseException e) {
-                    if (e != null) {
-                        Toast.makeText(getContext(), "Sem internet", Toast.LENGTH_LONG).show();
-                    } else {
-                        isVerified = ParseUser.getCurrentUser().getBoolean("emailVerified");
-                        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPref.edit();
-                        editor.putBoolean("emailVerified", isVerified);
-                        editor.apply();
+            if (ParseFacebookUtils.isLinked(ParseUser.getCurrentUser())) {
+                isVerified = true;
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putBoolean("emailVerified", isVerified);
+                editor.apply();
+            } else {
+                ParseUser.getCurrentUser().fetchInBackground(new GetCallback<ParseObject>() {
+                    @Override
+                    public void done(ParseObject object, ParseException e) {
+                        if (e != null) {
+                            Toast.makeText(getContext(), "Sem internet", Toast.LENGTH_LONG).show();
+                        } else {
+                            isVerified = ParseUser.getCurrentUser().getBoolean("emailVerified");
+                            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putBoolean("emailVerified", isVerified);
+                            editor.apply();
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     }
 
